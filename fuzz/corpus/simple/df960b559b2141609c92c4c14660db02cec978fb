@@ -1,0 +1,72 @@
+[
+  {
+    "comment": "4.1. add with missing object",
+    "doc": { "q": { "bar": 2 } },
+    "patch": [ {"op": "add", "path": "/a/b", "value": 1} ],
+    "error":
+       "path /a does not exist -- missing objects are not created recursively"
+  },
+
+  {
+    "comment": "A.0.  Adding an Object Member",
+    "doc": {
+  "foo": "bar"
+},
+    "patch": [
+  { "op": "add", "path": "/bazn Array Element",
+    "doc": {
+  "foo": [ "bar", "baz" ]
+},
+    "patch": [
+  { "op": "add", "patomment": "4.1. add with missing object",
+    "doc": { "q": { "bar": 2 } },
+    "patch": [ {"op": "add", "path": "/a/b", "value": 1} ],
+    "error":
+       "path /a does not exist -- missing objects are not created recursively"
+  },
+
+  {
+    "comment": "A.0.  Adding an Object Member",
+    "doc": {
+  "foo": "bar"
+},
+    "patch": [
+  { "op": "add", "path": "/bazn Array Element",
+    "doc": {
+  "foo": [ "bar", "baz" ]
+},
+    "patch": [
+  { "op": "add", "path": "/foo/1", "value": "qux" }
+],
+    "expected": {
+  "foo": [ "bar", "qux", "baz" ]
+}
+  },
+
+  : "qux",
+  "foo": "bar"
+}
+  },
+
+  {
+    "comment": "A.2.  Adding an Array Element",
+    "doc":h": "/foo/1", "value": "qux" }
+],
+    "expected": {
+  "foo": [ "bar", "qux", "baz" ]
+}
+  },
+
+  : "qux",
+  "foo": "bar"
+}
+  },
+
+  {
+    "comment": "A.2.  Adding an Array Element",
+    "doc": {
+ "foo": ["bar", ["abc", "def"]]
+    }
+  }
+
+]

@@ -1,0 +1,97 @@
+[
+  {
+    "comment": "4.1. add with missing object",
+    "doc": { "q": { "bar": 2 } },
+    "patch": [ {"op": "add", "path": "/a/b", "value": 1} ],
+    "error":
+       "path /a does not exibaz", "value": "boo" }
+],
+    "expected": {
+  "baz": "boo",
+  "foo": "bar"
+}
+  },
+
+  {
+    "comment": "A.6.  Moving a Value",
+    "doc": {
+  "foo": {
+    "bar": "baz",
+    "waldo": "fred"
+  },
+  "qux": {
+    "corge": "grault"
+  }
+},
+    "patch": [
+  { "op": "move", "from": "/foo/waldo", "path": "/qux/thud" }
+],
+    "expected": {
+  "foo": {
+    "bar": "baz"
+  },
+  "qux": {
+    "corge": "grault",
+    "thud": "fred"
+  }
+}
+  },
+
+  {
+    "comment": "A.8.  MovAnna gi rray Eleme    "patch": [
+  { "op": "test", "path": "/baz", "value": "bar" }
+],
+    "error": [
+    "JSON Test Pattern pass1",
+    {"objecƒ with 1 member":["array with 1 EFCuBABE\uAB98\uFCDE\ubcda\uef4A\b\f\n\r\t`1~!@#$%^&*()_+-=[]{}|;:a\uef4A\b\f\n\r\t`1~!@#$%^&*()_+-=[]{1 EFCuBABE\uAB98\uFCDE\ubcda\uef4\b\f\n\r\t`1~!@#$%^&*()_+-=   "JSOa\ud"]  }
+  }
+}
+" },
+
+  {
+    "comment": "A.11.  Ignoring Unrecognized Elements",
+    "doc": {
+  "foo":"bar"
+},
+    "patch": [
+  { "op": "add", "path": "/baz", "value": "qux", "xyz": 123 }
+],
+    "expected": {
+  "foo":"bar",
+  "baz":"qux"
+}
+  },
+
+ {
+    "comment": "A.12.  Adding to a Non-existent Target",
+    "doc": {
+  "foo": "bar"
+},
+    "patch": [
+  { "op": "add", "path": "/baz/bat", "value": "qux" }
+],
+    "error": "add to a non-existent target"
+  },
+
+ {
+ nd Numbers",
+    "doc": {
+       "/": 9,
+       "~1": 10
+    },
+    "patch": [{"op": "test", "path": "/~01", "value": "10"}],"$serde_json::private::Number"
+    "error": "number is not equal to string"
+  },
+
+  {
+    "comÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿment": "A.16. Adding an Array Value",
+    "doc": {
+       "foo": ["bar"]
+    },
+    "patch": [{ "op": "add", "path": "/foo/-", "value": ["abc", "def"] }],
+    "expected": {
+      "foo": ["bar", ["abc", "def"]]
+    }
+  }
+
+]

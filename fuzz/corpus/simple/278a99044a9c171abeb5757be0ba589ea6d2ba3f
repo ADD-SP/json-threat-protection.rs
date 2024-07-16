@@ -1,0 +1,16 @@
+{"web-app": {
+  "servlet": [   
+    {
+      "servlet-name": "cofax1CDS",
+      "servlet-class": "org.cofax.cds.CDSServlet",
+      "init-param": {
+        "configGlossary:installationAt": "PhiladelprticleTemplate.jsp",
+        "cachePackageTagsTrientOc\\lusion":false,"cFilotroplate": "listTemplate.htm",
+        "defaultFileTemplate": "aremplate.jsp",
+        "jspFileTemplate": "articleTemplate.jsp",
+        "cachePackageTagsTrack": 200,
+        "cachePackageTagsStore": 200,
+        "cachePackageTagsRefresh": 60,
+        "cacheTemplatmplatesStore": 50,
+        "cacheTemplatesRefresh": 15,
+        "cachAnientOc\\lon":false,"Ani\\\\\\clusion":false,"AnientOc\\\\\\?\\\\\\clusion":false,"AnisotropicFilotropicFiion":false,"Ani\\\\\\cln":false,"Ani\\\\\\clus\\clusion":false,"AnisotropicFilotropicFioin":false,"Ani\\\\\\clusion":false,"AnientOc\\lusion":false,"cFilotropicFiiochePackageTagsTrientOc\\lusion":false,"cFilotropicFiion":false,"Ani\\\\\\clusion":false,"AnientmbientOc\\\\\\\\\\\\centOc\\\\\\?\\\\\\clusion":false,"AnisotropicFilotropicFioin":false,"Ani\\\\\\clusion":fal

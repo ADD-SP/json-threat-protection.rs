@@ -1,46 +1,24 @@
-use std::borrow::Cow;
-
-use crate::read::Read;
+use crate::read::{Position, Read};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
+/// An error that occurred while lexing a JSON input.
 pub enum LexerError {
-    #[error("unexpected end of input")]
-    UnexpectedEndOfInput,
-    #[error("unclosed string at byte {0}")]
-    UnclosedString(usize),
-    #[error("unclosed object at byte {0}")]
-    UnclosedObject(usize),
-    #[error("unclosed array at byte {0}")]
-    UnclosedArray(usize),
-    #[error("missing comma at byte {0}")]
-    MissingComma(usize),
-    #[error("missing colon at byte {0}")]
-    MissingColon(usize),
-    #[error("missing key at byte {0}")]
-    MissingKey(usize),
-    #[error("missing value at byte {0}")]
-    MissingValue(usize),
-    #[error("missing quote at byte {0}")]
-    MissingQuote(usize),
-    #[error("invalid escape sequence at byte {0}")]
-    InvalidEscapeSequence(usize),
-    #[error("invalid utf-8 sequence at byte {0}")]
-    InvalidUtf8Sequence(usize),
-    #[error("Found control character inside string at byte {0}")]
-    ControlCharacterInString(usize),
-    #[error("invalid number at byte {0}")]
-    InvalidNumber(usize),
-    #[error("number out of range at byte {0}")]
-    NumberOutOfRange(usize),
-    #[error("unpexpected byte at byte {0}")]
-    UnexpectedByte(usize),
+    /// Invalid UTF-8 sequence at the given position.
+    #[error("invalid utf-8 sequence ({0}")]
+    InvalidUtf8Sequence(Position),
+
+    /// Unexpected byte at the given position.
+    #[error("unpexpected byte at byte ({0})")]
+    UnexpectedByte(Position),
+
+    /// Error occurred while reading from the underlying reader.
     #[error("I/O Error")]
     ReadError(#[from] crate::read::ReadError),
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Token<'a> {
+pub enum Token {
     LBrace,   // {
     RBrace,   // }
     LBracket, // [
@@ -48,66 +26,83 @@ pub enum Token<'a> {
     Comma,    // ,
     Colon,    // :
     Number,
-    String(Cow<'a, String>),
+    String(String),
     True,
     False,
     Null,
 }
 
-pub struct Lexer<'a, R: Read + 'a> {
+/// A JSON lexer, which reads a JSON input and produces a stream of tokens.
+pub struct Lexer<R: Read> {
     reader: R,
-    consumed: usize,
-
-    str_buf: String,
-    bytes_buf: Vec<u8>,
-
-    _phantom: std::marker::PhantomData<&'a ()>,
+    byte_buf: Vec<u8>,
+    peeked: Option<Token>,
 }
 
-impl<'a, R: Read + 'a> Lexer<'a, R> {
+impl<R: Read> Lexer<R> {
     pub fn new(reader: R) -> Self {
         Lexer {
             reader,
-            consumed: 0,
-
-            str_buf: String::with_capacity(64),
-            bytes_buf: Vec::with_capacity(1024),
-
-            _phantom: std::marker::PhantomData,
+            byte_buf: Vec::with_capacity(64),
+            peeked: None,
         }
     }
 
+    pub fn position(&self) -> Position {
+        self.reader.position()
+    }
+
+    pub fn peek(&mut self) -> Result<Option<Token>, LexerError> {
+        if self.peeked.is_none() {
+            self.peeked = self.next()?;
+        }
+        Ok(self.peeked.clone())
+    }
+
     pub fn next(&mut self) -> Result<Option<Token>, LexerError> {
+        if self.peeked.is_some() {
+            let peeked = self.peeked.clone();
+            self.peeked = None;
+            return Ok(peeked);
+        }
+
         loop {
             self.reader.skip_whitespace()?;
-            let peek = self.peek_byte();
+            let peek = self.reader.peek()?;
             if peek.is_none() {
                 return Ok(None);
             }
 
+            // unwrap is safe because peek is not None
             match peek.unwrap() {
                 b'{' => {
-                    self.next_byte()?.unwrap();
+                    // unwrap is safe because peek is not None
+                    self.reader.next()?.unwrap();
                     return Ok(Some(Token::LBrace));
                 }
                 b'}' => {
-                    self.next_byte()?.unwrap();
+                    // unwrap is safe because peek is not None
+                    self.reader.next()?.unwrap();
                     return Ok(Some(Token::RBrace));
                 }
                 b'[' => {
-                    self.next_byte()?.unwrap();
+                    // unwrap is safe because peek is not None
+                    self.reader.next()?.unwrap();
                     return Ok(Some(Token::LBracket));
                 }
                 b']' => {
-                    self.next_byte()?.unwrap();
+                    // unwrap is safe because peek is not None
+                    self.reader.next()?.unwrap();
                     return Ok(Some(Token::RBracket));
                 }
                 b',' => {
-                    self.next_byte()?.unwrap();
+                    // unwrap is safe because peek is not None
+                    self.reader.next()?.unwrap();
                     return Ok(Some(Token::Comma));
                 }
                 b':' => {
-                    self.next_byte()?.unwrap();
+                    // unwrap is safe because peek is not None
+                    self.reader.next()?.unwrap();
                     return Ok(Some(Token::Colon));
                 }
                 b'"' => {
@@ -125,126 +120,49 @@ impl<'a, R: Read + 'a> Lexer<'a, R> {
                 b'-' | b'+' | b'0'..=b'9' => {
                     return Ok(Some(self.parse_number()?));
                 }
-                _ => return Err(LexerError::UnexpectedByte(self.consumed)),
+                _ => return Err(LexerError::UnexpectedByte(self.position())),
             }
         }
     }
 
-    fn parse_string<'c: 'a>(&mut self) -> Result<Token, LexerError> {
-        self.bytes_buf.clear();
-        self.reader.next_likely_string(&mut self.bytes_buf)?;
+    fn parse_string(&mut self) -> Result<Token, LexerError> {
+        self.byte_buf.clear();
+        self.reader.next_likely_string(&mut self.byte_buf)?;
 
-        // let mut escape = false;
-
-        // self.bytes_buf.clear();
-
-        // match self.next_byte()? {
-        //     Some(b'"') => self.bytes_buf.push(b'"'),
-        //     Some(_) => return Err(LexerError::MissingQuote(self.consumed)),
-        //     None => return Err(LexerError::UnexpectedEndOfInput),
-        // }
-
-        // loop {
-        //     let byte = self
-        //         .next_byte()?
-        //         .ok_or(LexerError::UnclosedString(self.consumed))?;
-
-        //     if escape {
-        //         self.bytes_buf.push(byte);
-
-        //         match byte {
-        //             b'"' | b'\\' | b'/' | b'b' | b'f' | b'n' | b'r' | b't' => (),
-        //             b'u' => {
-        //                 for _ in 0..4 {
-        //                     let byte = self.next_byte()?.ok_or(LexerError::UnexpectedEndOfInput)?;
-
-        //                     if !matches!(byte, b'0'..=b'9' | b'a'..=b'f' | b'A'..=b'F') {
-        //                         return Err(LexerError::InvalidEscapeSequence(self.consumed));
-        //                     }
-
-        //                     self.bytes_buf.push(byte);
-        //                 }
-        //             }
-        //             _ => return Err(LexerError::InvalidEscapeSequence(self.consumed)),
-        //         }
-
-        //         escape = false;
-        //     } else {
-        //         match byte {
-        //             b'"' => {
-        //                 self.bytes_buf.push(b'"');
-        //                 break;
-        //             }
-        //             _ => {
-        //                 self.bytes_buf.push(byte);
-
-        //                 if byte == b'\\' {
-        //                     escape = true;
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-
-        if let Ok(str) = serde_json::from_slice::<Cow<'c, String>>(&self.bytes_buf) {
-            return Ok(Token::String(str));
+        let str = std::str::from_utf8(&self.byte_buf);
+        if str.is_err() {
+            return Err(LexerError::InvalidUtf8Sequence(self.position()));
         }
 
-        Err(LexerError::InvalidUtf8Sequence(self.consumed))
+        // unwrap is safe because str is not Err
+        Ok(Token::String(str.unwrap().to_string()))
     }
 
     fn parse_number(&mut self) -> Result<Token, LexerError> {
-        self.str_buf.clear();
-        self.reader.next_numerical(&mut self.str_buf)?;
-
-        if serde_json::from_str::<serde_json::Number>(&self.str_buf).is_err() {
-            return Err(LexerError::InvalidNumber(self.consumed));
+        match self.reader.next_number() {
+            Ok(_) => Ok(Token::Number),
+            Err(e) => Err(e.into()),
         }
-
-        Ok(Token::Number)
     }
 
     fn parse_true(&mut self) -> Result<Token, LexerError> {
         match self.reader.next4()? {
             [b't', b'r', b'u', b'e'] => Ok(Token::True),
-            _ => Err(LexerError::UnexpectedByte(self.consumed)),
+            _ => Err(LexerError::UnexpectedByte(self.position())),
         }
     }
 
     fn parse_false(&mut self) -> Result<Token, LexerError> {
         match self.reader.next5()? {
             [b'f', b'a', b'l', b's', b'e'] => Ok(Token::False),
-            _ => Err(LexerError::UnexpectedByte(self.consumed)),
+            _ => Err(LexerError::UnexpectedByte(self.position())),
         }
     }
 
     fn parse_null(&mut self) -> Result<Token, LexerError> {
         match self.reader.next4()? {
             [b'n', b'u', b'l', b'l'] => Ok(Token::Null),
-            _ => Err(LexerError::UnexpectedByte(self.consumed)),
+            _ => Err(LexerError::UnexpectedByte(self.position())),
         }
-    }
-
-    fn next_byte(&mut self) -> Result<Option<u8>, LexerError> {
-        match self.reader.next() {
-            Ok(Some(byte)) => {
-                self.consumed += 1;
-                Ok(Some(byte))
-            }
-            Ok(None) => Ok(None),
-            Err(e) => Err(LexerError::ReadError(e)),
-        }
-    }
-
-    fn peek_byte(&mut self) -> Option<u8> {
-        match self.reader.peek() {
-            Ok(Some(byte)) => Some(byte),
-            Ok(None) => None,
-            Err(_) => None,
-        }
-    }
-
-    pub fn get_consumed(&self) -> usize {
-        self.consumed
     }
 }

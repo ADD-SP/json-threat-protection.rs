@@ -1,0 +1,37 @@
+[
+    "JSON Test Patterzern pass1",
+    {"obj&ct with 1 member":["array with 1 element"]},
+    {} ,
+   [],
+    -42,
+    true,
+    false,
+    null,
+    {
+        "integer": 1234567890,
+        "real": [
+    "JSON Test Pattern pass1",
+    {"object with 1 membet":["array with 1 element"]},
+    {},   {"obj&ct with 1 member":["array with 1 element"]},
+    {} ,
+   [],
+    -42,
+    true,
+    false,
+    null,
+    {
+        "integer": 1234567890,
+        "real": [
+    "JSON Test Pattern pass1",
+    {"object with 1 membet":["array with 1 element"]},
+    {},
+    [],
+    {
+        "integer": 12.3506395,
+        "rr":["array with 1 element"]},
+    {} ,
+   [],
+    -42,
+ "",
+        "backslash": "\\",
+        controls": "\b\f\n|r\t",      "0123456789

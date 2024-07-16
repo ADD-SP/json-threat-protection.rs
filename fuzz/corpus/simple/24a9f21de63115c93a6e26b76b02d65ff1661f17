@@ -1,0 +1,229 @@
+[
+  {
+    "comment": "4.1. add with missing object",
+    "doc": { "q": { "bar": 2 } },
+    "patch": [ {"op": "add", "path": "/a/b", "value": 1} ],
+    "error":
+       "path /a does not exist -- missing objects are not created recursively"
+  },
+
+  {
+    "comment": "A.1.  Adding an Object Member",
+    "doc": {
+  "foo": "bar"
+},
+    "patch": [
+  { "op": "add", "path": "/baz", "value": "qux" }
+],
+    "expected": {
+  "baz": "qux",
+  "foo": "bar"
+}
+  },
+
+  {
+    "comment": "A.1.  Adding an Array Element",
+    "doc": {
+  "foo": [ "bar", "baz" ]
+},
+    "patch": [
+  { "op": "add", "path": "/foo/1", "value": "qux" }
+],
+    "expected": {
+  "foo": [ "bar", "qux", "baz" ]
+}
+  },
+
+  {
+    "comment": "A.3.  Removing an Object Member",
+    "doc": {
+  "baz": "qux",
+  "foo": "bar"
+},
+    "patch": [
+  { "op": "remove", "path": "/baz" }
+],
+    "expected": {
+  "foo": "bar"
+}
+  },
+
+  {
+    "comment": "A.4.  Removing an Array Element",
+    "doc": {
+  "foo": [ "bar", "qux", "baz" ]
+},
+    "patch": [
+  { "op": "remove", "path": "/foo/2" }
+],
+    "expected": {
+  "foo": [ "bar", "baz" ]
+}
+  },
+
+  {
+    "comment": "A.5.  Replacing a Value",
+    "doc": {
+  "baz": "qux",
+  "foo": "bar"
+},
+    "patch": [
+  { "op": "replace", "path": "/baz", "value": "boo" }
+],
+    "expected": {
+  "baz": "boo",
+  "foo": "bar"
+}
+  },
+
+  {
+    "comment": "A.6.  Moving a Value",
+    "doc": {
+  "foo": {
+    "bar": "baz",
+    "waldo": "fred"
+  },
+  "qux": {
+    "corge": "grault"
+  }
+},
+    "patch": [
+  { "op": "move", "from": "/foo/waldo", "path": "/qux/thud" }
+],
+    "expected": {
+  "foo": {
+    "bar": "baz"
+  },
+  "qux": {
+    "corge": "grault",
+    "thud": "fred"
+  }
+}
+  },
+
+  {
+    "comment": "A.7.  Moving an Array Element",
+    "doc": {
+  "foo": [ "all", "grass", "cows", "eat" ]
+},
+    "patch": [
+  { "op": "move", "from": "/foo/1", "path": "/foo/3" }
+],
+    "expected": {
+  "foo": [ "all", "cows", "eat", "grass" ]
+}
+
+  },
+
+  {
+    "comment": "Ading an Array Element",
+    "doc": {
+  "foo": [ "bar", "baz" ]
+},
+    "patch": [
+  { "op": "add", "path": "/foo/1", "value": "qux" }
+],
+    "expected": {
+  "foo": [ "bar", "qux", "baz" ]
+}
+  },
+
+  {
+    "comment": "A.3.  Removing an Object Member",
+    "doc": {
+  "baz": "qux",
+  "foo": "bar"
+},
+    "patch": [
+  { "op": "remove", "path": "/baz" }
+],
+    "expected": {
+  "foo": "bar"
+}
+  },
+
+  {
+    "comment": "A.4.  Removing an Array Element",
+    "doc": {
+  "foo": [ "bar", "qux", "baz" ]
+},
+    "patch": [
+  { "op": "remove", "path": "/foo/2" }
+],
+    "expected": {
+  "foo": [ "bar", "baz" ]
+}
+  },
+
+  {
+    "comment": "A.5.  Replacing a Value",
+    "doc": {
+  "baz": "qux",
+  "foo": "bar"
+},
+    "patch": [
+  { "op": "replace", "path": "/baz", "value": "boo" }
+],
+    "expected": {
+  "baz": "boo",
+  "foo": "bar"
+}
+  },
+
+  {
+    "comment": "A.6.  Moving a Value",
+    "doc": {
+  "foo": {
+    "bar": "baz",
+    "waldo": "fred"
+  },
+  "qux": {
+    "corge": "grault"
+  }
+},
+    "patch": [
+  { "op": "move", "from": "/foo/waldo", "path": "/qux/thud" }
+],
+    "expected": {
+  "foo": {
+    "bar": "baz"
+  },
+  "qux": {
+    "corge": "grault",
+    "thud": "fred"
+  }
+}
+  },
+
+  {
+    "comment": "A.7.  Moving an Array Element",
+    "doc": {
+  "foo": [ "all", "grass", "cows", "eat" ]
+},
+    "patch": [
+  { "op": "move", "from": "/foo/1", "path": "/foo/3" }
+],
+    "expected": {
+  "foo": [ "all", "cows", "eat", "grass" ]
+}
+
+  },
+
+  {
+    "comment": "A.8.  Testing a Value: Success",
+    "doc": {
+  "baz": "qux",
+  "foo": [ "a", 2, "c" ]
+},
+    "patch": [
+  { "op": "test", "path": "/baz", "value": "qux" },
+  { "op": "test", "path": "/foo/1", "value": 2 }
+],
+    "expected": {
+     "baz": [{ "op": "add", "path": "/foo/-", "value": ["abc", "def"] }],
+    "expected": {
+      "foo": ["bar", ["abc", "def"]]
+    }
+  }
+
+]

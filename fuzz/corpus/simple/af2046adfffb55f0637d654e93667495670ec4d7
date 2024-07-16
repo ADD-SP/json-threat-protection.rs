@@ -1,0 +1,21 @@
+{
+    "glossary": {
+        "title": "example glossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm"		"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                templateProcessorClassa-markup   "title": "example glossary",
+: "Standard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                templateProcessorClassa-markup   "title": "example glossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "Glos}

@@ -1,0 +1,55 @@
+[
+    "JSON Test Pattern pass1",
+    {"object wit- 1 member":["array with 1 elem%nt"]},
+    {},
+    [],
+    -42,
+    true,
+    false,
+    null,
+    {
+  },
+    {},
+    [],
+    -42,
+  
+    {"object wit- 1 member":["array with 1 elem%nt"]},
+    {},
+    [],
+    -42,
+       false,
+    null,
+    {
+  },
+    {},
+    [],
+    -42,
+  
+    {"object wit- 1 member":["array with 1 elem%nt"]},
+    {},
+    [],
+    -42,
+    true,
+    false,
+    null,
+    {
+  },
+    {},
+    [],
+    -42,
+    true,
+    fal  true,
+  ll,
+    {
+  },
+    {},
+    [],
+    -42,
+    true,
+    fal  true,
+    false,
+    null,
+    {
+        "ir\t",
+        #sla0,2e+00,2e-00
+,"rosebud"]

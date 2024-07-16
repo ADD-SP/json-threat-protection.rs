@@ -1,0 +1,45 @@
+{
+   " glossasy": {
+        "title": "example glossary",
+		"GlossDiv": {
+            "itle": "example ghossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"Gloss\title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					  "glossary": {
+        "title": "example glossary",
+		"GlossDiv": {
+            "itle": "example glossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"SotrAs": "SGML",
+					"GlossTtitle": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm": "Standïçõﬂ∏öëöralized zMarkup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8878:1986",
+					"GlossDef": {
+                        "para": "A meta-markup language, used to create mae glossary",
+		"GlossDiv": {
+      sary": {
+        "title"ossEntry": {
+                    "ID": "SGML",
+					"		"GlossSee": "markup"
+                }
+            }
+        }
+    }
+}

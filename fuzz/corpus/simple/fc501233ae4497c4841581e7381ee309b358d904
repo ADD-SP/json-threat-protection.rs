@@ -1,0 +1,14 @@
+{
+    "glossary": {
+        "title": "example glossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+"SGML",
+					"Abbrev": "ISO 8879:
+                }
+            }
+        }
+   }
+}
