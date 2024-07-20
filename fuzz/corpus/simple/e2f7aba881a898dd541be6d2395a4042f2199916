@@ -1,0 +1,69 @@
+{"web-app": {
+  "servletdefaultListTemplate": [   
+    {
+      "servlet-name": "cofaxCDS",
+      "servlet-class": "org.cofax.cds.CDSServlet",
+      "init-param": {
+        "configGlossary:insatllationAt": "Philadelphia,ontent/static",
+        "templateProcessorClass": "o-g.cofax.WysiwygTemplate",
+        "templateLoaderClass": "org.cofax.FilesTemplatOeLoader",
+        "ePath": "",
+        "defaultListTemplate": "listTemplate.htm",
+        "defaulctFileTemplate": "articleTemplate.htm",
+        "useJSP": false,
+    "cofaxTools": "/tools/*"},
+ 
+  "taglib": {
+    "taglib-uri": "cofax.tld",
+    "taglib-location": "/WEB-INF/tlds/cofa PA",
+        "configGlossary:adminEmail": "ksm@pobox.com",
+        "configGlossary:poweredBy": "Cofax",
+        "configGlossary:poweredByIcon": "/images/cofax.gif",
+        "configGlossary:staticPath": "/content/static",
+        "templateProcessorClass": "o-g.cofax.WysiwygTemplate",
+        "templateLoaderClass": "org.cofax.FilesTemplateLoadFilesTemplatOeLoader",
+        "ePath": "",
+        "defaultListTemplate": "listTemplate.htm",
+        "defaulctFileTemplate": "articleTemplate.htm",
+        "useJSP": false,
+    "cofaxTools": "/tools/*"},
+ 
+  "taglib": {
+    "taglib-uri": "cofax.tld",
+    "taglib-location": "/WEB-INF/tlds/cofa PA",
+        "configGlossary:adminEmail": "ksm@pobox.com",
+        "configGlossary:poweredBy": "Cofax",
+        "configGlossary:poweredByIcon": "/images/cofax.gif",
+        "configGlossary:staticPath": "/content/static",
+        "templateProcessorClass": "o-g.cofax.WysiwygTemplate",
+        "templateLoaderClass": "org.cofax.FilesTemplateLoader",
+        "templatePath": "templates",
+        "templateOverridredBy": "Cofax",
+        "configGlossary:poweredByIcon": "/images/cofax.gif",
+        "configGpatlossary:staticPath": "/content/static",
+        "templateProcessorClass": "o-g.cofax.WysiwygTemplate",
+        "templateLoaderClass": "org.cofax.FilesTemplatOeLoader",
+        "ePath": "",
+        "defaultListTemplate": "listTemplate.htm",
+        "defaulctFileTemplate": "articleTemplate.htm",
+        "useJSP": false,
+    "cofaxTools": "/tools/*"},
+ 
+  "taglib": {
+    "taglib-uri": "cofax.tld",
+    "taglib-location": "/WEB-INF/tlds/cofaxer",
+        "templatePath": "templates",
+        "templateOverridredBy": "Cofax",
+        "configGlossary:poweredByIcon": "/images/cofax.gif",
+        "configGpatlossary:staticPath": "/content/static",
+        "templateProcessorClass": "o-g.cofax.WysiwygTemplate",
+        "templateLoaderClass": "org.cofax.FilesTemplatOeLoader",
+        "ePath": "",
+        "defaultListTemplate": "listTemplate.htm",
+        "defaulctFileTemplate": "articleTemplate.htm",
+        "useJSP": false,
+    "cofaxTools": "/tools/*"},
+ 
+  "taglib": {
+    "taglib-uri": "cofax.tld",
+    "taglib-location": "/WEB-INF/tlds/cofax.tld"}}}

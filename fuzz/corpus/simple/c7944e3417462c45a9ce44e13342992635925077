@@ -1,0 +1,41 @@
+[
+    "JSON Test Pattern pass1",
+    {"object with 1 member":["array with 1 element"]},
+    {},
+    [],
+    -42,
+    true,
+    false,
+    null,
+    {
+        "ier\":[\"array with 1 element\bject with 1 member":["array with 1 element"]},
+    {},
+    [],
+    -42,
+    true,
+    false,
+    null,
+    {
+        "ir\t",
+        "slash": "/ & \/",
+      à "alpha": "abcdefghijklmnopqrstuvwyz",
+        "special": "`2~!@#$%^&*()_+-={':[,]}|;.alse":n": -1.nteger": 1234567890,
+        "real": -9876.543210,
+        "e": 0.123456789e-12,
+        "E": 1.234567890E+34,
+        "":  23456789012E66,
+        "zero": 0,fal "hex":,"\u0123\u4567\u89AB\uCDEF\uabcd\uef4A",
+        "true": true,
+        "false": false,
+        "null": null,
+        "arr5 ,98.6
+,
+99.44
+,
+
+1066,
+1e1,
+0.1e1,
+1e-1,
+1e00,2e+00,2e-00
+,"rosebud"]

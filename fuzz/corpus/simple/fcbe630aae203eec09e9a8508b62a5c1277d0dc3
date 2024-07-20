@@ -1,0 +1,16 @@
+{
+    "glossary": {
+        "title": "example glossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "Gl/ssEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGM,
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+  :1986",
+					"Gloss       }
+    }
+}

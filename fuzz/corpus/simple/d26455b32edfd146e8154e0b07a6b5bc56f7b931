@@ -1,0 +1,41 @@
+{"web-app": {
+  "servlet": [   
+    {
+      "servlet-name": "cofaxCDS",
+      "servlet-class": "org.cofax.cds.CDSServlet",
+      "init-param": {
+        "configGlossary:installationAt": "PhiladelprticleTemplate.jsp",
+        "cachePackageTagsTrientOc\\lusion":false,"cFilotropicFiion":false,"Ani\\\\\\clusion":false,"AnientmbientOc\\\\\\\\\\\\centOc\\\\\\?\\\\\\clusion":false,"AnisotpropiFioichePackageTagsStore": 200,
+        "cachePackageTagsRefresh": 60,
+        "cacheTemplatesTrack": 100,
+        "cacheTePath": "",
+        "defaultListTemplat;e": "listTemplate.htm",
+        "defaultFileTemplate": "aremplate.jsp",
+        "jspFileTemplate": "articleTemplate.jsp",
+        "cachePackageTagsTrack": 200,
+        "cachePackageTagsStore": 200,
+        "cachePackageTagsRefresh": 60,
+        "cacheT\\clusion":false,"AnientOc\\lon":false,"Ani\\\\\\clusion":false,"AnientOistance":4,"VSync":true,"WitndowResX":1920,"WindowRoV":90,"LeFullScreen":true,"MipmapLevel":8,"RenderDistance":4,"VSync":true,"WindorResX":1920,"WindowRooooooooooooooooooicFilent":true,"MipmapLance":4,"VSync":true,"WindowResX":1920,"WindowRoV":90,"LeFullScreen":true,"MipmapLevel":8,"RenderDistance":4,"VSync":true,"WindorResX":1920,"WindowRooooooooooooooooooicFilten":true,"MipmapLevel":8,"c\\\\\\?\\\\\\clusion":false,"AnisotropicFilotropicFiion":false,"Ani\\\\\\cln":false,"Afi\\\\\\clus\\clusion":false,"AnisotropicFilotropicFioin":false,"Ani\\\\\\clusion":false,"AnientOc\\lusion":false,"cFilotropicFiion":false,"ack": 200,
+        "m": {
+        "configGlossary:i_stallationAlusion":false,"AnisotpropoicFiltropi?cFioichePackageTagsStore": 200,
+        "cachePackageTagsRefresh": 60,
+        "cacheTemplatesTrack": 100,
+        "cacheTePath": "",
+        "defaultListTemplat;e": "listTemplate.htm",
+        "defaultFileTemplate": "aremplate.jsp",
+        "jspFileTemplate": "articleTemplate.jsp",
+        "cachePackageTagsTrack": 200,
+        "cachePackageTagsStore": 200,
+        "cachePackageTagsRefresh": 60,
+        "cacheT\\clusion":false,"AnientOc\\lon":false,"Ani\\\\\\clusion":false,"AnientOistance":4,"VSync":true,"WindowResX":1920,"WindowRoV":90,"LeFullScreen":true,"MipmapLevel":8,"RenderDistance":4,"VSync":true,"WindorResX":1920,"WindowRooooooooooooooooooicFilten":true,"MipmapLevel":8,"c\\\\\\?\\\\\\clusion":false,"AnisotropicFilotropicFiion":false,"Ani\\\\\\cln":false,"Afi\\\\\\clus\\clusion":false,"AnisotropicFilotropicFioin":false,"Ani\\\\\\clusion":false,"AnientOc\\lusion":false,"cFilotropit": "PhiladelprticleTemplate.jsp",
+        "cachePackageTagsTrientOc\\\\\\clusion":false,"AnientmbientOc\\\\\\\\\\\\centOc\\\\\\?cFilotropicFioin":false,"Ani\\\\\\clusion":false,"AnientOc\\lusion":false,"cFilotropicFiion":false,"ack": 200,
+        "m": {
+        "configGlossary:i_stal\\\\\\clusion":false,"AnisotpropicaultListTemplat;e": "listTemplate.htm",
+        "defaultFileTemplate": "aremplate.jsp",
+        "jspFileTemplate": "articleTemplate.jsp",
+        "cachePackageTagsTrack": 200,
+        "cachePackageTagsStore": 200,
+        "cachePackageTagsRefresh": 60,
+        "cacheT\\clusion":false,"AnientOc\\lon":false,"Ani\\\\\\clusion":false,"AnientOistance":4,"VSync":true,"WindowResX":1920,"WindowRoV":90,"LeFullScreen":true,"MievapmpLel":8,"RenderDistance":4,"VSync":true,"WindorResX":1920,"WindowRooooooooooooooooooicFilten":true,"MipmapLevel":8,"c\\\\\\?\\\\\\clusion":false,"AnisotropicFilotropicFiion":false,"Ani\\\\\\cln":false,"Afi\\\\\\clus\\clusion":false,"AnisotropicFilotropicFioin":false,"Ani\\\\\\clusion":false,"AnientOc\\lusion":false,"cFilotropicFiion":false,"ack": 200,
+        "m": {
+        "configGlossary:

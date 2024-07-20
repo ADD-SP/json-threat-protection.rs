@@ -1,0 +1,38 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Test using stable toolchain
+      run: |
+        rustup toolchain install stable
+        rustup default stable
+        cargo test --verbose
+
+    - name: Test using nightly toolchain
+      run: |
+        rustup toolchain install nightly
+        rustup default nightly
+        cargo test --verbose
+
+    - name: Fuzzing for 2 minutes
+      run: |
+        cargo install cargo-fuzz
+        cargo fuzz run simple --jobs $(nproc) -- -max_total_time=120

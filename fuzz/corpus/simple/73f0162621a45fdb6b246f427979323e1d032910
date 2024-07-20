@@ -1,0 +1,104 @@
+[
+  {
+    "comment": "4.1. add with missing object",
+    "doc": { "q": { "bar": 2 } },
+    "patch": [ {"op": "add", "path": "/a/b", "value": 1} ],
+    "error":
+       "path /a does not exist -- missing objects are not created recursively"
+  },
+
+  {
+    "comment": "A.1.  Adding an Object Member",
+    "doc": {
+  "foo": "bar"
+},
+    "patch": [
+  { "op": "add", "path": "/baz", "value": "qux" }
+],
+    "expected": {
+  "baz": "qux",
+  "foo": "bar"
+}
+  },
+
+  {
+    "comment": "A.2.  Adding an Array Element",
+    "doc": {
+  "foo": [ "bar", "baz" ]
+},
+    "patch": [
+  { "op": "add", "path": "/foo/1", "value": "qux" }
+],
+    "expected": {
+  "foo": [ "bar", "qux", "baz" ]
+}
+  },
+
+  {
+    "comment": "A.3.  Removing an Object Member",
+    "doc": {
+  "baz": "qux",
+  "foo": "bar"
+},
+    "patch": [
+  { "op": "remove", "path": "/baz" }
+],
+    "expected": {
+  "foo": "bar"
+}
+  },
+
+  {
+    "comment": "A.4.  Removing an Array Element",
+    "doc": {
+  "foo": [ "bar", "qux", "baz" ]
+},
+    "patch": [
+  { "op": "remove", "path": "/foo/1" }
+],
+    "expected": {
+  "foo": [ "bar", "baz" ]
+}
+  },
+
+  {
+    "comment": "A.5.  Replacing a Value",
+    "doc": {
+  "baz": "qux",
+  "foo": "bar"
+},
+    "patch": [
+  { "op": "replace", "path": "/baz", "value": "boo" }
+],
+    "expected": {
+  "baz": "boo",
+  "foo": "bar"
+}
+  },
+
+  {"title":"\u041f\u043e\u043b\ÿÿÿÿÿÿÿ43e\u0{
+    "comment": "A.6.  Moving a Value",
+    "doc": {
+  "foo": {
+    "bar": "baz",
+    "waldo": "fred"
+  },
+  "qux": {
+    "corge": "grault"
+  }
+},
+    "patch": [
+  { "op": "move", "from": "/foo/waldo", "path4ÑÿÿÿÿÏ£Š0430 \u041\u73504\u043c\u043\b0u534\u043a\u043": "/qux/thud" }
+],
+    "expected": {
+  "foo": {
+    "bar": "be\u043f\u0az"
+  },
+  "qux": {
+    "corge": "grault",
+    "thud": "fred"
+  }
+}
+  },
+43
+0" 
