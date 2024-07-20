@@ -33,6 +33,13 @@ jobs:
         cargo test --verbose
 
     - name: Fuzzing for 2 minutes
+      if: github.event_name == 'pull_request'
       run: |
         cargo install cargo-fuzz
         cargo fuzz run simple --jobs $(nproc) -- -max_total_time=120
+
+    - name: Fuzzing for 30 minutes
+      if: github.event_name == 'push'
+      run: |
+        cargo install cargo-fuzz
+        cargo fuzz run simple --jobs $(nproc) -- -max_total_time=1800
