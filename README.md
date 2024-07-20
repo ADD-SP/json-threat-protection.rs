@@ -1,9 +1,9 @@
 # JSON-threat-protection.rs
 
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ADD-SP/json-threat-protection.rs/test.yml?branch=main&style=for-the-badge&label=Fuzzing&link=https%3A%2F%2Fgithub.com%2FADD-SP%2Fjson-threat-protection.rs%2Factions)
-![Crates.io Version](https://img.shields.io/crates/v/json-threat-protection?style=for-the-badge&link=https%3A%2F%2Fcrates.io%2Fcrates%2Fjson-threat-protection)
-![docs.rs](https://img.shields.io/docsrs/json-threat-protection?style=for-the-badge&link=https%3A%2F%2Fdocs.rs%2Fjson-threat-protection)
-![GitHub License](https://img.shields.io/github/license/ADD-SP/json-threat-protection.rs?style=for-the-badge&link=https%3A%2F%2Fgithub.com%2FADD-SP%2Fjson-threat-protection.rs%2Fblob%2Fmain%2FLICENSE)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ADD-SP/json-threat-protection.rs/test.yml?branch=main&style=for-the-badge&label=Fuzzing)](https://github.com/ADD-SP/json-threat-protection.rs/actions)
+[![Crates.io Version](https://img.shields.io/crates/v/json-threat-protection?style=for-the-badge)](https://crates.io/crates/json-threat-protection)
+[![docs.rs](https://img.shields.io/docsrs/json-threat-protection?style=for-the-badge&link=https%3A%2F%2Fdocs.rs%2Fjson-threat-protection)](https://docs.rs/json-threat-protection)
+[![GitHub License](https://img.shields.io/github/license/ADD-SP/json-threat-protection.rs?style=for-the-badge)](LICENSE)
 
 A Rust library to protect against malicious JSON payloads.
 
