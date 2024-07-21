@@ -42,11 +42,13 @@ fn traverse_json(data: &serde_json::Value, depth: usize) {
 
 fn invoke_serde_json(content: &str) {
     let v: serde_json::Value = serde_json::from_str(content).unwrap();
+    #[allow(clippy::unit_arg)]
     black_box(traverse_json(&v, 1));
 }
 
 fn invoke_validator(content: &str) {
     let validator = json_threat_protection::from_str(content);
+    #[allow(clippy::unit_arg)]
     black_box(validator.validate().unwrap());
 }
 
@@ -58,7 +60,7 @@ fn criterion_benchmark(c: &mut Criterion) {
         }
     };
 
-    let content = std::fs::read_to_string(&path).unwrap();
+    let content = std::fs::read_to_string(path).unwrap();
 
     let mut group = c.benchmark_group("JSON Validation");
 
