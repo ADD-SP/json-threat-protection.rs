@@ -1,0 +1,45 @@
+[[[	
+
+
+
+
+
+
+{"$s																													{"x":[{"id":																																{"x":[{"id":																																																																																{"x":[{"id":																															{"x":[{"id":																											{"x":[{"id":									)				{"x":[{"id":																						[{"id":																															{"x":[{"id":																																																{"x":15555555555555555555.15555555554
+,115555555555555555555.1554
+5555555.1554
+,1  0 "$serde_json::private::Number"										2e\
+,115555555555.15555555508
+,115555555555555555555.155555555554
+,11555555Ô55555[{"id":																															{"x":[{"id":																																				{"x":[{"id":																															{"x":[{"id":																																							{"x":[{"id":																															{"x":[{"id":																																				{"x":[{"id":																															{"x":[{"id":																			{"x":[{"id":																															{"x":[{"id":																						[{"id":																															{"x":[{"id":																																				{"x":[{"id":																															{"x":[{"id":																																							{"x":[{"id":																																													{"x":[{"id":																																							[{"id":									[
+    "JSON Test Pattern pass1",
+    {"object with 1 member":["array with 1 element"]},
+    {},
+    [],
+    -42,
+    true,
+    false,
+    null,
+    {
+        "integer1": 1234567890,
+        "real": -9876.543210,
+         "zero": 0,
+        "one": 1,
+        "space": " ",
+        "quote": "\"",
+        "backslash": "\\",
+        "controls": "\b\f\n\r\t",
+        "slash": "/ & \/",
+        "alpha": "abcdefghijklmnopqrstuvwyz",
+        "ALPHA": "ABCDEFGHIJKLMNOPQRSTUVWYZ",
+        "digit": "0123456789",
+        "0123456789": "digit",
+        "special": "`1~!@#$%^&*()_+-={':[,]}|;.</>?",
+        "hex": "\u0123\u4567\u89AB\uCDEF\uabcd\uef4A",
+        "true": true,
+        "false": false,
+        "null": null,
+        "array":[  ],
+        "object":{  },
+        "address": "50 St. James Street",
+        "url": "http://www.JS																						{"x":[{"id":																																																{"x":[{"id":																															{"x":[{"id":																																				{"x":[{"id":																															{"x":[{"id":																																							{"x":[{"id":																															{"x":[{"id":																																				{"x":[{"id":																	ON.org	
