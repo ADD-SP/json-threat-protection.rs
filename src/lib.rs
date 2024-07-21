@@ -127,7 +127,7 @@ mod validator;
 use read::{IoRead, Read, SliceRead, StrRead};
 
 /// Represents no limit for a specific constraint.
-pub const NO_LIMIT: usize = std::usize::MAX;
+pub const NO_LIMIT: usize = usize::MAX;
 pub use lexer::LexerError;
 pub use read::ReadError;
 pub use validator::ValidatorError as Error;
@@ -240,9 +240,9 @@ impl<R: Read> Validator<R> {
     /// In the extreme case, the error might return an `Err` and indicate
     /// this crate is running into buggy code.
     /// Please report it to the crate maintainer if you see this error.
-    /// 
+    ///
     /// # WARNING
-    /// 
+    ///
     /// The validator will be invalidated once this method
     /// returns an `Err` or `Ok(true)`,
     /// and calling any methods for [`Validator`] instance is undefined behavior.

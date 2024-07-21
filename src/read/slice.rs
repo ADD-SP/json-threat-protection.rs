@@ -30,11 +30,11 @@ impl<'a> SliceRead<'a> {
     /// Fast version of `next4` that does not return an error.
     fn next4_no_error(&mut self) -> Option<[u8; 4]> {
         let mut buf = [0; 4];
-        for i in 0..4 {
-            match self.next_no_error() {
-                Some(ch) => buf[i] = ch,
+        for ch in &mut buf {
+            *ch = match self.next_no_error() {
+                Some(ch) => ch,
                 None => return None,
-            }
+            };
         }
         Some(buf)
     }
@@ -42,11 +42,11 @@ impl<'a> SliceRead<'a> {
     /// Fast version of `next5` that does not return an error.
     fn next5_no_error(&mut self) -> Option<[u8; 5]> {
         let mut buf = [0; 5];
-        for i in 0..5 {
-            match self.next_no_error() {
-                Some(ch) => buf[i] = ch,
+        for ch in &mut buf {
+            *ch = match self.next_no_error() {
+                Some(ch) => ch,
                 None => return None,
-            }
+            };
         }
         Some(buf)
     }
@@ -54,16 +54,16 @@ impl<'a> SliceRead<'a> {
     /// Fast version of `position` that does not return an error.
     fn next4_hex(&mut self) -> Result<[u8; 4], ReadError> {
         let mut buf = [0; 4];
-        for i in 0..4 {
-            match self.next_no_error() {
+        for ch in &mut buf {
+            *ch = match self.next_no_error() {
                 Some(ch) => {
                     if !IS_HEX[ch as usize] {
                         return Err(ReadError::NonHexCharacterInUnicodeEscape(self.position()));
                     }
-                    buf[i] = ch;
+                    ch
                 }
                 None => return Err(ReadError::UnexpectedEndOfInput(self.position())),
-            }
+            };
         }
         Ok(buf)
     }
@@ -160,11 +160,8 @@ impl<'a> SliceRead<'a> {
             None => return Err(ReadError::UnexpectedEndOfInput(self.position())),
         }
 
-        loop {
-            match self.peek_no_error() {
-                Some(b'0'..=b'9') => self.discard(),
-                _ => break,
-            }
+        while let Some(b'0'..=b'9') = self.peek_no_error() {
+            self.discard();
         }
 
         Ok(())
@@ -260,17 +257,12 @@ impl<'a> Read for SliceRead<'a> {
     }
 
     fn skip_whitespace(&mut self) -> Result<(), ReadError> {
-        loop {
-            match self.peek_no_error() {
-                Some(byte) => {
-                    if IS_WHITESPACE[byte as usize] {
-                        self.next_no_error();
-                        continue;
-                    }
-                    break;
-                }
-                _ => break,
+        while let Some(byte) = self.peek_no_error() {
+            if IS_WHITESPACE[byte as usize] {
+                self.discard();
+                continue;
             }
+            break;
         }
         Ok(())
     }

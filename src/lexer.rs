@@ -56,14 +56,14 @@ impl<R: Read> Lexer<R> {
         if self.peeked.is_none() {
             self.peeked = self.next(str_buf)?;
             self.peeked_str_buf.clear();
-            self.peeked_str_buf.extend_from_slice(&str_buf);
+            self.peeked_str_buf.extend_from_slice(str_buf);
         }
         Ok(self.peeked)
     }
 
     pub fn next(&mut self, str_buf: &mut Vec<u8>) -> Result<Option<Token>, LexerError> {
         if self.peeked.is_some() {
-            let peeked = self.peeked.clone();
+            let peeked = self.peeked;
             self.peeked = None;
 
             if matches!(peeked, Some(Token::String)) {
@@ -74,62 +74,50 @@ impl<R: Read> Lexer<R> {
             return Ok(peeked);
         }
 
-        loop {
-            self.reader.skip_whitespace()?;
-            let peek = self.reader.peek()?;
-            if peek.is_none() {
-                return Ok(None);
-            }
+        self.reader.skip_whitespace()?;
+        let peek = self.reader.peek()?;
+        if peek.is_none() {
+            return Ok(None);
+        }
 
-            // unwrap is safe because peek is not None
-            match peek.unwrap() {
-                b'{' => {
-                    // unwrap is safe because peek is not None
-                    self.reader.next()?.unwrap();
-                    return Ok(Some(Token::LBrace));
-                }
-                b'}' => {
-                    // unwrap is safe because peek is not None
-                    self.reader.next()?.unwrap();
-                    return Ok(Some(Token::RBrace));
-                }
-                b'[' => {
-                    // unwrap is safe because peek is not None
-                    self.reader.next()?.unwrap();
-                    return Ok(Some(Token::LBracket));
-                }
-                b']' => {
-                    // unwrap is safe because peek is not None
-                    self.reader.next()?.unwrap();
-                    return Ok(Some(Token::RBracket));
-                }
-                b',' => {
-                    // unwrap is safe because peek is not None
-                    self.reader.next()?.unwrap();
-                    return Ok(Some(Token::Comma));
-                }
-                b':' => {
-                    // unwrap is safe because peek is not None
-                    self.reader.next()?.unwrap();
-                    return Ok(Some(Token::Colon));
-                }
-                b'"' => {
-                    return Ok(Some(self.parse_string(str_buf)?));
-                }
-                b't' => {
-                    return Ok(Some(self.parse_true()?));
-                }
-                b'f' => {
-                    return Ok(Some(self.parse_false()?));
-                }
-                b'n' => {
-                    return Ok(Some(self.parse_null()?));
-                }
-                b'-' | b'+' | b'0'..=b'9' => {
-                    return Ok(Some(self.parse_number()?));
-                }
-                _ => return Err(LexerError::UnexpectedByte(self.position())),
+        // unwrap is safe because peek is not None
+        match peek.unwrap() {
+            b'{' => {
+                // unwrap is safe because peek is not None
+                self.reader.next()?.unwrap();
+                Ok(Some(Token::LBrace))
             }
+            b'}' => {
+                // unwrap is safe because peek is not None
+                self.reader.next()?.unwrap();
+                Ok(Some(Token::RBrace))
+            }
+            b'[' => {
+                // unwrap is safe because peek is not None
+                self.reader.next()?.unwrap();
+                Ok(Some(Token::LBracket))
+            }
+            b']' => {
+                // unwrap is safe because peek is not None
+                self.reader.next()?.unwrap();
+                Ok(Some(Token::RBracket))
+            }
+            b',' => {
+                // unwrap is safe because peek is not None
+                self.reader.next()?.unwrap();
+                Ok(Some(Token::Comma))
+            }
+            b':' => {
+                // unwrap is safe because peek is not None
+                self.reader.next()?.unwrap();
+                Ok(Some(Token::Colon))
+            }
+            b'"' => Ok(Some(self.parse_string(str_buf)?)),
+            b't' => Ok(Some(self.parse_true()?)),
+            b'f' => Ok(Some(self.parse_false()?)),
+            b'n' => Ok(Some(self.parse_null()?)),
+            b'-' | b'+' | b'0'..=b'9' => Ok(Some(self.parse_number()?)),
+            _ => Err(LexerError::UnexpectedByte(self.position())),
         }
     }
 
