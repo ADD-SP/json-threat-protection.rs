@@ -44,18 +44,18 @@ For comparison, the `serde_json` crate is used to parse the JSON
 and get the `serde_json::Value` and travel through the JSON structure
 to check the above constraints.
 
-Here are the table of the results of the benchmark suite for three different datasets:
+Here are the table of the results of the benchmark suite for different datasets:
 
 [*Data Source*](data/)
 
-|             Dataset           | Size | serde_json | json-threat-protection | Faster (%) | Comment |
+|             Dataset           | Size | serde_json | json-threat-protection | Faster     | Comment |
 |-------------------------------|------|------------|------------------------|------------|---------|
-| kernel_stargazers.json        | 1.2M | 12.996 ms  | 8.8530 ms              | 31.89%     | 1000 stargazers JSON information from [torvalds/linux](https://github.com/torvalds/linux) |
-| kernel_stargazers_small.json  | 568K | 5.8825 ms  | 3.7504 ms              | 36.29%     | 472 stargazers JSON information from [torvalds/linux](https://github.com/torvalds/linux) |
-| kernel_commits.json           | 4.6M | 45.059 ms  | 29.682 ms              | 34.25%     | 1000 commits JSON infomation from [torvalds/linux](https://github.com/torvalds/linux) |
-| tokio_issues.json             | 5.1M | 61.935 ms  | 33.959 ms              | 45.20%     | 1000 issues JSON information from [tokio-rs/tokio](https://github.com/tokio-rs/tokio) |
-| tokio_forks.json              | 6.1M | 90.984 ms  | 45.686 ms              | 49.80%     | 1000 forks JSON information from [tokio-rs/tokio](https://github.com/tokio-rs/tokio) |
-| tokio_workflow_runs.json      | 15M  | 221.89 ms  | 103.65 ms              | 53.22%     | 1000 workflow runs JSON information from [tokio-rs/tokio](https://github.com/tokio-rs/tokio) |
+| kernel_stargazers.json        | 1.2M | 12.996 ms  | 8.8530 ms              | 1.46x      | 1000 stargazers JSON information from [torvalds/linux](https://github.com/torvalds/linux) |
+| kernel_stargazers_small.json  | 568K | 5.8825 ms  | 3.7504 ms              | 1.56x      | 472 stargazers JSON information from [torvalds/linux](https://github.com/torvalds/linux) |
+| kernel_commits.json           | 4.6M | 45.059 ms  | 29.682 ms              | 1.51x      | 1000 commits JSON infomation from [torvalds/linux](https://github.com/torvalds/linux) |
+| tokio_issues.json             | 5.1M | 61.935 ms  | 33.959 ms              | 1.82x      | 1000 issues JSON information from [tokio-rs/tokio](https://github.com/tokio-rs/tokio) |
+| tokio_forks.json              | 6.1M | 90.984 ms  | 45.686 ms              | 1.99x      | 1000 forks JSON information from [tokio-rs/tokio](https://github.com/tokio-rs/tokio) |
+| tokio_workflow_runs.json      | 15M  | 221.89 ms  | 103.65 ms              | 2.14x      | 1000 workflow runs JSON information from [tokio-rs/tokio](https://github.com/tokio-rs/tokio) |
 
 It is expected that the `json-threat-protection` crate
 will be faster than the `serde_json` crate
