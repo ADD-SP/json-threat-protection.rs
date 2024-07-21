@@ -222,11 +222,11 @@ pub trait Read {
     /// Get the next 4 characters and consume them.
     fn next4(&mut self) -> Result<[u8; 4], ReadError> {
         let mut buf = [0; 4];
-        for i in 0..4 {
-            match self.next()? {
-                Some(ch) => buf[i] = ch,
+        for ch in &mut buf {
+            *ch = match self.next()? {
+                Some(ch) => ch,
                 None => return Err(ReadError::UnexpectedEndOfInput(self.position())),
-            }
+            };
         }
         Ok(buf)
     }
@@ -234,24 +234,19 @@ pub trait Read {
     /// Get the next 5 characters and consume them.
     fn next5(&mut self) -> Result<[u8; 5], ReadError> {
         let mut buf = [0; 5];
-        for i in 0..5 {
-            match self.next()? {
-                Some(ch) => buf[i] = ch,
+        for ch in &mut buf {
+            *ch = match self.next()? {
+                Some(ch) => ch,
                 None => return Err(ReadError::UnexpectedEndOfInput(self.position())),
-            }
+            };
         }
         Ok(buf)
     }
 
     /// Skip whitespace characters (`' '`, `'\t'`, `'\n'`, `'\r'`).
     fn skip_whitespace(&mut self) -> Result<(), ReadError> {
-        loop {
-            match self.peek()? {
-                Some(b' ') | Some(b'\t') | Some(b'\n') | Some(b'\r') => {
-                    self.next()?;
-                }
-                _ => break,
-            }
+        while let Some(b' ') | Some(b'\t') | Some(b'\n') | Some(b'\r') = self.peek()? {
+            self.next()?;
         }
         Ok(())
     }
