@@ -220,7 +220,7 @@ impl<R: Read> Validator<R> {
         self.inner.validate()
     }
 
-    /// Validates the JSON payload in a single call.
+    /// Validates the JSON payload in multiple calls.
     ///
     /// # Arguments
     ///
@@ -240,6 +240,12 @@ impl<R: Read> Validator<R> {
     /// In the extreme case, the error might return an `Err` and indicate
     /// this crate is running into buggy code.
     /// Please report it to the crate maintainer if you see this error.
+    /// 
+    /// # WARNING
+    /// 
+    /// The validator will be invalidated once this method
+    /// returns an `Err` or `Ok(true)`,
+    /// and calling any methods for [`Validator`] instance is undefined behavior.
     pub fn validate_with_steps(&mut self, steps: usize) -> Result<bool, validator::ValidatorError> {
         self.inner.validate_with_steps(steps)
     }

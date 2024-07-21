@@ -100,7 +100,7 @@ macro_rules! try_add_object_key {
             return Err(ValidatorError::MaxObjectEntryNameLengthExceeded {
                 position: $position,
                 limit: $self.max_object_entry_name_length,
-                name: $key,
+                name: $key.to_string(),
             });
         }
 
@@ -437,6 +437,7 @@ impl<R: Read> Validator<R> {
 
     fn inner_validate(&mut self, steps: usize) -> Result<bool, ValidatorError> {
         let mut remaining_steps = steps;
+        let mut str_buf = Vec::with_capacity(64);
 
         // Dummy position for constructing `ValidatorError`
         // so that we can keep the error reason once the error occurs,
@@ -449,7 +450,7 @@ impl<R: Read> Validator<R> {
         let dummy_position = Position::default();
 
         while let Some(state) = self.states.pop() {
-            let token = self.lexer.next()?;
+            let token = self.lexer.next(&mut str_buf)?;
 
             if token.is_none() {
                 return Err(ValidatorError::InvalidJSON(dummy_position));
@@ -547,17 +548,19 @@ impl<R: Read> Validator<R> {
                     },
                     _ => return Err(ValidatorError::InvalidJSON(dummy_position)),
                 },
-                Token::String(str) => match state {
+                Token::String => match state {
                     State::OptionalObjectKey | State::RequireObjectKey => {
+                        let str = unsafe { std::str::from_utf8_unchecked(str_buf.as_slice()) };
                         try_add_object_key!(self, str, dummy_position);
                         self.states.push(State::RequireColon);
                     }
                     State::OptionalElement | State::RequireElement => {
+                        let str = unsafe { std::str::from_utf8_unchecked(str_buf.as_slice()) };
                         if str.len() > self.max_string_length {
                             return Err(ValidatorError::MaxStringLengthExceeded {
                                 position: dummy_position,
                                 limit: self.max_string_length,
-                                str: str,
+                                str: str.to_string(),
                             });
                         }
 
@@ -613,7 +616,7 @@ impl<R: Read> Validator<R> {
 
         let has_states = !self.states.is_empty();
         let no_depth = self.cur_depth == 0;
-        let has_more_token = self.lexer.peek()?.is_some();
+        let has_more_token = self.lexer.peek(&mut str_buf)?.is_some();
 
         if has_states || !no_depth {
             if has_more_token {
