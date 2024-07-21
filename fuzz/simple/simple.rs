@@ -25,6 +25,23 @@ fuzz_target!(|data: &[u8]| {
     let is_valid = serde_json::from_slice::<Value>(data).is_ok();
     assert_eq!(jtp::from_slice(data).validate().is_ok(), is_valid);
 
+    let mut validator = jtp::from_slice(data);
+    loop {
+        let r = validator.validate_with_steps(2000);
+        if r.is_err() {
+            if !is_valid {
+                break;
+            }
+            
+            panic!("Unexpected error: {:?}", r);
+        }
+
+        if r.unwrap() {
+            assert_eq!(true, is_valid);
+            break;
+        }
+    }
+
     let reader = std::io::BufReader::new(data);
     assert_eq!(jtp::from_reader(reader).validate().is_ok(), is_valid);
 });
