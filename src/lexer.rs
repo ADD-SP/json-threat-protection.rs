@@ -17,7 +17,7 @@ pub enum LexerError {
     ReadError(#[from] crate::read::ReadError),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Token {
     LBrace,   // {
     RBrace,   // }
@@ -26,7 +26,7 @@ pub enum Token {
     Comma,    // ,
     Colon,    // :
     Number,
-    String(String),
+    String,
     True,
     False,
     Null,
@@ -35,7 +35,7 @@ pub enum Token {
 /// A JSON lexer, which reads a JSON input and produces a stream of tokens.
 pub struct Lexer<R: Read> {
     reader: R,
-    byte_buf: Vec<u8>,
+    peeked_str_buf: Vec<u8>,
     peeked: Option<Token>,
 }
 
@@ -43,7 +43,7 @@ impl<R: Read> Lexer<R> {
     pub fn new(reader: R) -> Self {
         Lexer {
             reader,
-            byte_buf: Vec::with_capacity(64),
+            peeked_str_buf: Vec::with_capacity(64),
             peeked: None,
         }
     }
@@ -52,17 +52,25 @@ impl<R: Read> Lexer<R> {
         self.reader.position()
     }
 
-    pub fn peek(&mut self) -> Result<Option<Token>, LexerError> {
+    pub fn peek(&mut self, str_buf: &mut Vec<u8>) -> Result<Option<Token>, LexerError> {
         if self.peeked.is_none() {
-            self.peeked = self.next()?;
+            self.peeked = self.next(str_buf)?;
+            self.peeked_str_buf.clear();
+            self.peeked_str_buf.extend_from_slice(&str_buf);
         }
-        Ok(self.peeked.clone())
+        Ok(self.peeked)
     }
 
-    pub fn next(&mut self) -> Result<Option<Token>, LexerError> {
+    pub fn next(&mut self, str_buf: &mut Vec<u8>) -> Result<Option<Token>, LexerError> {
         if self.peeked.is_some() {
             let peeked = self.peeked.clone();
             self.peeked = None;
+
+            if matches!(peeked, Some(Token::String)) {
+                str_buf.clear();
+                str_buf.extend_from_slice(&self.peeked_str_buf);
+            }
+
             return Ok(peeked);
         }
 
@@ -106,7 +114,7 @@ impl<R: Read> Lexer<R> {
                     return Ok(Some(Token::Colon));
                 }
                 b'"' => {
-                    return Ok(Some(self.parse_string()?));
+                    return Ok(Some(self.parse_string(str_buf)?));
                 }
                 b't' => {
                     return Ok(Some(self.parse_true()?));
@@ -125,17 +133,16 @@ impl<R: Read> Lexer<R> {
         }
     }
 
-    fn parse_string(&mut self) -> Result<Token, LexerError> {
-        self.byte_buf.clear();
-        self.reader.next_likely_string(&mut self.byte_buf)?;
+    fn parse_string(&mut self, str_buf: &mut Vec<u8>) -> Result<Token, LexerError> {
+        str_buf.clear();
+        self.reader.next_likely_string(str_buf)?;
 
-        let str = std::str::from_utf8(&self.byte_buf);
+        let str = std::str::from_utf8(str_buf);
         if str.is_err() {
             return Err(LexerError::InvalidUtf8Sequence(self.position()));
         }
 
-        // unwrap is safe because str is not Err
-        Ok(Token::String(str.unwrap().to_string()))
+        Ok(Token::String)
     }
 
     fn parse_number(&mut self) -> Result<Token, LexerError> {
