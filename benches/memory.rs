@@ -1,4 +1,8 @@
+mod streaming;
+
+use crate::streaming::StreamingValidator;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use serde::de::DeserializeSeed as _;
 
 fn traverse_json(data: &serde_json::Value, depth: usize) {
     if depth > 1024 {
@@ -40,7 +44,13 @@ fn traverse_json(data: &serde_json::Value, depth: usize) {
     }
 }
 
-fn invoke_serde_json(content: &str) {
+fn invoke_serde_json_streaming(content: &str) {
+    let mut de = serde_json::Deserializer::from_str(content);
+    black_box(StreamingValidator::new().deserialize(&mut de).unwrap());
+    de.end().unwrap();
+}
+
+fn invoke_serde_json_value(content: &str) {
     let v: serde_json::Value = serde_json::from_str(content).unwrap();
     #[allow(clippy::unit_arg)]
     black_box(traverse_json(&v, 1));
@@ -64,8 +74,11 @@ fn criterion_benchmark(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("JSON Validation");
 
-    group.bench_function("serde_json", |b| {
-        b.iter(|| invoke_serde_json(black_box(&content)))
+    group.bench_function("serde_json_streaming", |b| {
+        b.iter(|| invoke_serde_json_streaming(black_box(&content)))
+    });
+    group.bench_function("serde_json_value", |b| {
+        b.iter(|| invoke_serde_json_value(black_box(&content)))
     });
     group.bench_function("json-threat-protection", |b| {
         b.iter(|| invoke_validator(black_box(&content)))
