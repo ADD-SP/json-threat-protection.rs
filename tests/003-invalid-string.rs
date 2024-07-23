@@ -27,11 +27,11 @@ fn invalid_utf8_sequence() {
     assert!(
         matches!(
             err,
-            Error::LexerError(LexerError::ReadError(ReadError::InvalidEscapeSequence(
+            Error::LexerError(LexerError::ReadError(ReadError::UnexpectedEndOfInput(
                 Position {
                     line: 1,
-                    column: 16,
-                    offset: 16
+                    column: 15,
+                    offset: 15
                 }
             )))
         ),
@@ -89,10 +89,10 @@ fn invalid_incomplete_escape() {
         matches!(
             err,
             Error::LexerError(LexerError::ReadError(
-                ReadError::NonHexCharacterInUnicodeEscape(Position {
+                ReadError::UnexpectedEndOfInput(Position {
                     line: 1,
-                    column: 12,
-                    offset: 12
+                    column: 11,
+                    offset: 11
                 })
             ))
         ),
@@ -107,10 +107,10 @@ fn invalid_incomplete_escape() {
         matches!(
             err,
             Error::LexerError(LexerError::ReadError(
-                ReadError::NonHexCharacterInUnicodeEscape(Position {
+                ReadError::UnexpectedEndOfInput(Position {
                     line: 1,
-                    column: 13,
-                    offset: 13
+                    column: 11,
+                    offset: 11
                 })
             ))
         ),
@@ -125,10 +125,10 @@ fn invalid_incomplete_escape() {
         matches!(
             err,
             Error::LexerError(LexerError::ReadError(
-                ReadError::NonHexCharacterInUnicodeEscape(Position {
+                ReadError::InvalidEscapeSequence(Position {
                     line: 1,
-                    column: 14,
-                    offset: 14
+                    column: 15,
+                    offset: 15
                 })
             ))
         ),
@@ -143,7 +143,7 @@ fn invalid_incomplete_escape() {
         matches!(
             err,
             Error::LexerError(LexerError::ReadError(
-                ReadError::NonHexCharacterInUnicodeEscape(Position {
+                ReadError::InvalidEscapeSequence(Position {
                     line: 1,
                     column: 15,
                     offset: 15

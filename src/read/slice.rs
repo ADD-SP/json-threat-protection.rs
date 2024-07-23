@@ -1,111 +1,102 @@
-use super::utils::{decode_hex_sequence, LineColumnIterator, IS_HEX, IS_WHITESPACE, NEED_ESCAPE};
+use super::utils::{decode_hex_sequence, IS_HEX, IS_WHITESPACE, NEED_ESCAPE};
 use super::{Position, Read, ReadError};
 
 /// A reader for slices which implements the [`Read`] trait.
 pub struct SliceRead<'a> {
-    iter: LineColumnIterator<'a, std::slice::Iter<'a, u8>>,
+    slice: &'a [u8],
+    index: usize,
 }
 
 impl<'a> SliceRead<'a> {
     pub fn new(slice: &'a [u8]) -> Self {
         SliceRead {
-            iter: LineColumnIterator::new(slice.iter()),
+            slice,
+            index: 0,
         }
     }
 
-    fn discard(&mut self) {
-        self.iter.discard();
+    fn is_eof(&self) -> bool {
+        debug_assert!(self.index <= self.slice.len());
+        self.index == self.slice.len()
     }
 
-    /// Fast version of `peek` that does not return an error.
-    fn peek_no_error(&mut self) -> Option<u8> {
-        self.iter.peek().copied()
+    fn remaining(&self) -> usize {
+        self.slice.len() - self.index
     }
 
-    /// Fast version of `next` that does not return an error.
-    fn next_no_error(&mut self) -> Option<u8> {
-        self.iter.next().copied()
+    fn discard_unchecked(&mut self) {
+        debug_assert!(!self.is_eof());
+        self.index += 1;
     }
 
-    /// Fast version of `next4` that does not return an error.
-    fn next4_no_error(&mut self) -> Option<[u8; 4]> {
-        let mut buf = [0; 4];
-        for ch in &mut buf {
-            *ch = match self.next_no_error() {
-                Some(ch) => ch,
-                None => return None,
-            };
-        }
-        Some(buf)
+    fn peek_unchecked(&self) -> u8 {
+        debug_assert!(!self.is_eof());
+        self.slice[self.index]
     }
 
-    /// Fast version of `next5` that does not return an error.
-    fn next5_no_error(&mut self) -> Option<[u8; 5]> {
-        let mut buf = [0; 5];
-        for ch in &mut buf {
-            *ch = match self.next_no_error() {
-                Some(ch) => ch,
-                None => return None,
-            };
-        }
-        Some(buf)
+    fn next_unchecked(&mut self) -> u8 {
+        debug_assert!(!self.is_eof());
+        let byte = self.slice[self.index];
+        self.index += 1;
+        byte
     }
 
-    /// Fast version of `position` that does not return an error.
-    fn next4_hex(&mut self) -> Result<[u8; 4], ReadError> {
-        let mut buf = [0; 4];
-        for ch in &mut buf {
-            *ch = match self.next_no_error() {
-                Some(ch) => {
-                    if !IS_HEX[ch as usize] {
-                        return Err(ReadError::NonHexCharacterInUnicodeEscape(self.position()));
-                    }
-                    ch
-                }
-                None => return Err(ReadError::UnexpectedEndOfInput(self.position())),
-            };
+    fn next3_unchecked(&mut self) -> [u8; 3] {
+        debug_assert!(self.remaining() >= 3);
+        let buf = [
+            self.slice[self.index],
+            self.slice[self.index + 1],
+            self.slice[self.index + 2],
+        ];
+        self.index += 3;
+        buf
+    }
+
+    fn next4_unchecked(&mut self) -> [u8; 4] {
+        debug_assert!(self.remaining() >= 4);
+        let buf = [
+            self.slice[self.index],
+            self.slice[self.index + 1],
+            self.slice[self.index + 2],
+            self.slice[self.index + 3],
+        ];
+        self.index += 4;
+        buf
+    }
+
+    fn next4_hex_unchecked(&mut self) -> Result<[u8; 4], ReadError> {
+        let buf = self.next4_unchecked();
+        if !buf.iter().all(|&n| IS_HEX[n as usize]) {
+            return Err(ReadError::InvalidEscapeSequence(self.position()));
         }
         Ok(buf)
     }
 
-    fn parse_number(&mut self) -> Result<(), ReadError> {
-        match self.peek_no_error() {
-            Some(b'-') => self.discard(),
-            Some(b'0'..=b'9') => (),
-            Some(_) => return Err(ReadError::Bug {
-                msg:
-                    "SliceRead.parse_number: assume the first character is a number or a minus sign"
-                        .to_string(),
-                position: self.position(),
-            }),
-            None => return Err(ReadError::UnexpectedEndOfInput(self.position())),
+    fn parse_number(&mut self, first: u8) -> Result<(), ReadError> {
+        let mut first = first;
+        if first == b'-' {
+            if self.is_eof() {
+                return Err(ReadError::UnexpectedEndOfInput(self.position()));
+            }
+            first = match self.next_unchecked() {
+                n @ b'0'..=b'9' =>n,
+                _ => return Err(ReadError::NoNumberCharactersAfterMinusSign(self.position())),
+            }
         }
 
-        let first = match self.next_no_error() {
-            Some(n @ b'0'..=b'9') => n,
-            _ => {
-                return Err(ReadError::Bug {
-                    msg: "SliceRead.parse_number: assume the first character is a number"
-                        .to_string(),
-                    position: self.position(),
-                })
-            }
-        };
-
-        let second = self.peek_no_error();
-        if second.is_none() {
+        if self.is_eof() {
             return Ok(());
         }
 
-        if first == b'0' && matches!(second, Some(b'0'..=b'9')) {
+        if first == b'0' && self.peek_unchecked().is_ascii_digit() {
             return Err(ReadError::LeadingZerosInNumber(self.position()));
         }
 
-        loop {
-            match self.peek_no_error() {
-                Some(b'0'..=b'9') => self.discard(),
-                Some(b'.') => return self.parse_float(),
-                Some(b'e') | Some(b'E') => return self.parse_exponent(),
+        while !self.is_eof() {
+            match self.peek_unchecked() {
+                b'0'..=b'9' => self.discard_unchecked(),
+                b'.' => return self.parse_float(),
+                b'e' | b'E' => return self.parse_exponent(),
                 _ => break,
             }
         }
@@ -114,23 +105,24 @@ impl<'a> SliceRead<'a> {
     }
 
     fn parse_float(&mut self) -> Result<(), ReadError> {
-        if self.next_no_error() != Some(b'.') {
-            return Err(ReadError::Bug {
-                msg: "SliceRead.parse_float: assume the first character is a period".to_string(),
-                position: self.position(),
-            });
+        match self.next_unchecked() {
+            b'.' => (),
+            _ => unreachable!(),
         }
 
-        match self.peek_no_error() {
-            Some(b'0'..=b'9') => self.discard(),
-            Some(_) => return Err(ReadError::NoNumberCharactersAfterFraction(self.position())),
-            None => return Err(ReadError::UnexpectedEndOfInput(self.position())),
+        if self.is_eof() {
+            return Err(ReadError::UnexpectedEndOfInput(self.position()));
         }
 
-        loop {
-            match self.peek_no_error() {
-                Some(b'0'..=b'9') => self.discard(),
-                Some(b'e') | Some(b'E') => return self.parse_exponent(),
+        match self.next_unchecked() {
+            b'0'..=b'9' => (),
+            _ => return Err(ReadError::NoNumberCharactersAfterFraction(self.position())),
+        }
+
+        while !self.is_eof() {
+            match self.peek_unchecked() {
+                b'0'..=b'9' => self.discard_unchecked(),
+                b'e' | b'E' => return self.parse_exponent(),
                 _ => break,
             }
         }
@@ -139,70 +131,89 @@ impl<'a> SliceRead<'a> {
     }
 
     fn parse_exponent(&mut self) -> Result<(), ReadError> {
-        if !matches!(self.next_no_error(), Some(b'e') | Some(b'E')) {
-            return Err(ReadError::Bug {
-                msg: "SliceRead.parse_exponent: assume the first character is an exponent"
-                    .to_string(),
-                position: self.position(),
-            });
+        match self.next_unchecked() {
+            b'e' | b'E' => (),
+            _ => unreachable!(),
         }
 
-        match self.peek_no_error() {
-            Some(b'-') | Some(b'+') => self.discard(),
-            Some(b'0'..=b'9') => (),
-            Some(_) => return Err(ReadError::NoNumberCharactersAfterExponent(self.position())),
-            None => return Err(ReadError::UnexpectedEndOfInput(self.position())),
+        if self.is_eof() {
+            return Err(ReadError::UnexpectedEndOfInput(self.position()));
         }
 
-        match self.peek_no_error() {
-            Some(b'0'..=b'9') => (),
-            Some(_) => return Err(ReadError::NoNumberCharactersAfterExponent(self.position())),
-            None => return Err(ReadError::UnexpectedEndOfInput(self.position())),
+        match self.peek_unchecked() {
+            b'-' | b'+' => self.discard_unchecked(),
+            _ => (),
         }
 
-        while let Some(b'0'..=b'9') = self.peek_no_error() {
-            self.discard();
+        if self.is_eof() {
+            return Err(ReadError::UnexpectedEndOfInput(self.position()));
+        }
+
+        match self.next_unchecked() {
+            b'0'..=b'9' => (),
+            _ => return Err(ReadError::NoNumberCharactersAfterExponent(self.position())),
+        }
+
+        while !self.is_eof() {
+            match self.peek_unchecked() {
+                b'0'..=b'9' => self.discard_unchecked(),
+                _ => break,
+            }
         }
 
         Ok(())
     }
 
     fn parse_escape_sequence(&mut self, buf: &mut Vec<u8>) -> Result<(), ReadError> {
-        // assume that the previous character is b'\'
+        if self.is_eof() {
+            return Err(ReadError::UnexpectedEndOfInput(self.position()));
+        }
+
         let mut simple_escape = true;
 
-        match self.next_no_error() {
-            Some(b'"') => buf.push(b'"'),
-            Some(b'\\') => buf.push(b'\\'),
-            Some(b'/') => buf.push(b'/'),
-            Some(b'b') => buf.push(b'\x08'),
-            Some(b'f') => buf.push(b'\x0C'),
-            Some(b'n') => buf.push(b'\n'),
-            Some(b'r') => buf.push(b'\r'),
-            Some(b't') => buf.push(b'\t'),
-            Some(b'u') => simple_escape = false,
-            Some(_) => return Err(ReadError::InvalidEscapeSequence(self.position())),
-            None => return Err(ReadError::UnexpectedEndOfInput(self.position())),
+        match self.next_unchecked() {
+            b'"' => buf.push(b'"'),
+            b'\\' => buf.push(b'\\'),
+            b'/' => buf.push(b'/'),
+            b'b' => buf.push(b'\x08'),
+            b'f' => buf.push(b'\x0C'),
+            b'n' => buf.push(b'\n'),
+            b'r' => buf.push(b'\r'),
+            b't' => buf.push(b'\t'),
+            b'u' => simple_escape = false,
+            _ => return Err(ReadError::InvalidEscapeSequence(self.position())),
         };
 
         if simple_escape {
             return Ok(());
         }
 
-        let hex = decode_hex_sequence(&self.next4_hex()?);
+        // check if there are 4 hex characters
+        if self.remaining() < 4 {
+            return Err(ReadError::UnexpectedEndOfInput(self.position()));
+        }
+
+        let hex = decode_hex_sequence(&self.next4_hex_unchecked()?);
         let ch = match hex {
             _n @ 0xDC00..=0xDFFF => {
                 return Err(ReadError::InvalidEscapeSequence(self.position()));
             }
             n @ 0xD800..=0xDBFF => {
                 let high = n;
-                if self.next_no_error() != Some(b'\\') {
+
+                // check if there is \uXXXX sequence
+                if self.remaining() < 6 {
+                    return Err(ReadError::UnexpectedEndOfInput(self.position()));
+                }
+
+                if self.next_unchecked() != b'\\' {
                     return Err(ReadError::InvalidEscapeSequence(self.position()));
                 }
-                if self.next_no_error() != Some(b'u') {
+                if self.next_unchecked() != b'u' {
                     return Err(ReadError::InvalidEscapeSequence(self.position()));
                 }
-                let low = decode_hex_sequence(&self.next4_hex()?);
+
+                let low = decode_hex_sequence(&self.next4_hex_unchecked()?);
                 if !matches!(low, 0xDC00..=0xDFFF) {
                     return Err(ReadError::InvalidEscapeSequence(self.position()));
                 }
@@ -213,19 +224,10 @@ impl<'a> SliceRead<'a> {
 
                 match std::char::from_u32(codepoint) {
                     Some(ch) => ch,
-                    None => return Err(ReadError::Bug {
-                        msg: "SliceRead.parse_escape_sequence: assume the codepoint is a valid Unicode codepoint".to_string(),
-                        position: self.position(),
-                    }),
+                    None => return Err(ReadError::InvalidEscapeSequence(self.position())),
                 }
             }
-            n => match std::char::from_u32(n as u32) {
-                Some(ch) => ch,
-                None => return Err(ReadError::Bug {
-                    msg: "SliceRead.parse_escape_sequence: assume the codepoint is a valid Unicode codepoint".to_string(),
-                    position: self.position(),
-                }),
-            }
+            n => std::char::from_u32(n as u32).unwrap(),
         };
 
         buf.extend_from_slice(ch.encode_utf8(&mut [0u8; 4]).as_bytes());
@@ -235,52 +237,67 @@ impl<'a> SliceRead<'a> {
 
 impl<'a> Read for SliceRead<'a> {
     fn position(&self) -> Position {
-        self.iter.position()
+        let mut pos = Position::default();
+        for &n in &self.slice[..self.index] {
+            if n == b'\n' {
+                pos.line += 1;
+                pos.column = 0;
+            } else {
+                pos.column += 1;
+            }
+            pos.offset += 1;
+        }
+        pos
     }
 
     fn peek(&mut self) -> Result<Option<u8>, ReadError> {
-        Ok(self.peek_no_error())
+        if self.is_eof() {
+            return Ok(None);
+        }
+        Ok(Some(self.peek_unchecked()))
     }
 
     fn next(&mut self) -> Result<Option<u8>, ReadError> {
-        Ok(self.next_no_error())
+        if self.is_eof() {
+            return Ok(None);
+        }
+        Ok(Some(self.next_unchecked()))
+    }
+
+    fn next3(&mut self) -> Result<[u8; 3], ReadError> {
+        if self.remaining() < 3 {
+            return Err(ReadError::UnexpectedEndOfInput(self.position()));
+        }
+        Ok(self.next3_unchecked())
     }
 
     fn next4(&mut self) -> Result<[u8; 4], ReadError> {
-        self.next4_no_error()
-            .ok_or(ReadError::UnexpectedEndOfInput(self.position()))
-    }
-
-    fn next5(&mut self) -> Result<[u8; 5], ReadError> {
-        self.next5_no_error()
-            .ok_or(ReadError::UnexpectedEndOfInput(self.position()))
-    }
-
-    fn skip_whitespace(&mut self) -> Result<(), ReadError> {
-        while let Some(byte) = self.peek_no_error() {
-            if IS_WHITESPACE[byte as usize] {
-                self.discard();
-                continue;
-            }
-            break;
+        if self.remaining() < 4 {
+            return Err(ReadError::UnexpectedEndOfInput(self.position()));
         }
-        Ok(())
+        Ok(self.next4_unchecked())
     }
 
-    fn next_number(&mut self) -> Result<(), ReadError> {
-        self.parse_number()
+    fn skip_whitespace(&mut self) -> Result<Option<u8>, ReadError> {
+        while !self.is_eof() {
+            let next = self.next_unchecked();
+            if !IS_WHITESPACE[next as usize] {
+                return Ok(Some(next));
+            }
+        }
+        Ok(None)
+    }
+
+    fn next_number(&mut self, first: u8) -> Result<(), ReadError> {
+        self.parse_number(first)
     }
 
     fn next_likely_string(&mut self, buf: &mut Vec<u8>) -> Result<(), ReadError> {
-        if self.next_no_error() != Some(b'"') {
-            return Err(ReadError::Bug {
-                msg: "SliceRead.next_likely_string: assume the first character is a double quote"
-                    .to_string(),
-                position: self.position(),
-            });
-        }
+        buf.clear();
 
-        while let Some(byte) = self.next_no_error() {
+        while !self.is_eof() {
+            let byte = self.next_unchecked();
+
             if !NEED_ESCAPE[byte as usize] {
                 buf.push(byte);
                 continue;

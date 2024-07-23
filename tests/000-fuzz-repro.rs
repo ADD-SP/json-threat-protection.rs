@@ -1,5 +1,7 @@
 // mod utils;
 
+// use core::panic;
+
 // use json_threat_protection as jtp;
 // use serde_json::Value;
 
@@ -16,8 +18,8 @@
 
 // #[test]
 // fn fuzz() {
-//     // let data = std::fs::read("/home/dev/src/json-threat-protection/fuzz/artifacts/simple/crash-370103a9f61b9d2991e1529d126e219f01087c84").unwrap();
-//     let data = [123, 34, 36, 115, 101, 114, 100, 101, 95, 106, 115, 111, 110, 58, 58, 112, 114, 105, 118, 97, 116, 101, 58, 58, 78, 117, 109, 98, 101, 114, 34, 58, 10, 10, 48, 125];
+//     // let data = std::fs::read("fuzz/artifacts/simple/crash-a9ab76df22b06440fbe285569b4a6e199f6b1311").unwrap();
+//     let data = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 32, 102, 97, 108, 115, 101];
 
 //     // let binding = String::from_utf8_lossy(&data);
 //     // let parts = binding.split_at(77);
@@ -26,14 +28,16 @@
 
 //     println!("{:?}", data);
 //     print_str(&data);
-//     validate_by_serde_json(&data);
+//     // validate_by_serde_json(&data);
 
 //     let validator = jtp::from_slice(&data);
 //     validator.validate().unwrap();
 
 //     let buf_reader = std::io::BufReader::new(&data[..]);
 //     let validator = jtp::from_reader(buf_reader);
-//     validator.validate().unwrap();
+//     // validator.validate().unwrap();
+
+//     panic!("done");
 
 //     // let data = br#"true"#;
 //     // let stream = ByteStream::new(data);

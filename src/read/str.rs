@@ -32,16 +32,12 @@ impl Read for StrRead<'_> {
         self.slice_read.next4()
     }
 
-    fn next5(&mut self) -> Result<[u8; 5], ReadError> {
-        self.slice_read.next5()
-    }
-
-    fn skip_whitespace(&mut self) -> Result<(), ReadError> {
+    fn skip_whitespace(&mut self) -> Result<Option<u8>, ReadError> {
         self.slice_read.skip_whitespace()
     }
 
-    fn next_number(&mut self) -> Result<(), ReadError> {
-        self.slice_read.next_number()
+    fn next_number(&mut self, first: u8) -> Result<(), ReadError> {
+        self.slice_read.next_number(first)
     }
 
     fn next_likely_string(&mut self, buf: &mut Vec<u8>) -> Result<(), ReadError> {

@@ -1,0 +1,10 @@
+[
+    "JSON ~est Pattern pass1",
+    {"object with 1 member":["array with 1 eemlent"]},
+    {},
+    [],
+    -42,
+    true,
+    false,
+    null,
+   567890E

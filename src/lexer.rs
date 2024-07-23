@@ -74,55 +74,53 @@ impl<R: Read> Lexer<R> {
             return Ok(peeked);
         }
 
-        self.reader.skip_whitespace()?;
-        let peek = self.reader.peek()?;
-        if peek.is_none() {
+        let next = self.reader.skip_whitespace()?;
+        if next.is_none() {
             return Ok(None);
         }
 
         // unwrap is safe because peek is not None
-        match peek.unwrap() {
+        match next.unwrap() {
             b'{' => {
                 // unwrap is safe because peek is not None
-                self.reader.next()?.unwrap();
+                // self.reader.next()?.unwrap();
                 Ok(Some(Token::LBrace))
             }
             b'}' => {
                 // unwrap is safe because peek is not None
-                self.reader.next()?.unwrap();
+                // self.reader.next()?.unwrap();
                 Ok(Some(Token::RBrace))
             }
             b'[' => {
                 // unwrap is safe because peek is not None
-                self.reader.next()?.unwrap();
+                // self.reader.next()?.unwrap();
                 Ok(Some(Token::LBracket))
             }
             b']' => {
                 // unwrap is safe because peek is not None
-                self.reader.next()?.unwrap();
+                // self.reader.next()?.unwrap();
                 Ok(Some(Token::RBracket))
             }
             b',' => {
                 // unwrap is safe because peek is not None
-                self.reader.next()?.unwrap();
+                // self.reader.next()?.unwrap();
                 Ok(Some(Token::Comma))
             }
             b':' => {
                 // unwrap is safe because peek is not None
-                self.reader.next()?.unwrap();
+                // self.reader.next()?.unwrap();
                 Ok(Some(Token::Colon))
             }
             b'"' => Ok(Some(self.parse_string(str_buf)?)),
             b't' => Ok(Some(self.parse_true()?)),
             b'f' => Ok(Some(self.parse_false()?)),
             b'n' => Ok(Some(self.parse_null()?)),
-            b'-' | b'+' | b'0'..=b'9' => Ok(Some(self.parse_number()?)),
+            digit @( b'-' | b'0'..=b'9') => Ok(Some(self.parse_number(digit)?)),
             _ => Err(LexerError::UnexpectedByte(self.position())),
         }
     }
 
     fn parse_string(&mut self, str_buf: &mut Vec<u8>) -> Result<Token, LexerError> {
-        str_buf.clear();
         self.reader.next_likely_string(str_buf)?;
 
         let str = std::str::from_utf8(str_buf);
@@ -133,30 +131,30 @@ impl<R: Read> Lexer<R> {
         Ok(Token::String)
     }
 
-    fn parse_number(&mut self) -> Result<Token, LexerError> {
-        match self.reader.next_number() {
+    fn parse_number(&mut self, first: u8) -> Result<Token, LexerError> {
+        match self.reader.next_number(first) {
             Ok(_) => Ok(Token::Number),
             Err(e) => Err(e.into()),
         }
     }
 
     fn parse_true(&mut self) -> Result<Token, LexerError> {
-        match self.reader.next4()? {
-            [b't', b'r', b'u', b'e'] => Ok(Token::True),
+        match self.reader.next3()? {
+            [b'r', b'u', b'e'] => Ok(Token::True),
             _ => Err(LexerError::UnexpectedByte(self.position())),
         }
     }
 
     fn parse_false(&mut self) -> Result<Token, LexerError> {
-        match self.reader.next5()? {
-            [b'f', b'a', b'l', b's', b'e'] => Ok(Token::False),
+        match self.reader.next4()? {
+            [b'a', b'l', b's', b'e'] => Ok(Token::False),
             _ => Err(LexerError::UnexpectedByte(self.position())),
         }
     }
 
     fn parse_null(&mut self) -> Result<Token, LexerError> {
-        match self.reader.next4()? {
-            [b'n', b'u', b'l', b'l'] => Ok(Token::Null),
+        match self.reader.next3()? {
+            [b'u', b'l', b'l'] => Ok(Token::Null),
             _ => Err(LexerError::UnexpectedByte(self.position())),
         }
     }
