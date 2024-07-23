@@ -58,29 +58,29 @@ macro_rules! try_active_array {
 
 macro_rules! try_add_array_entry {
     ($self:ident, $position:ident) => {
-        let entries = $self
-            .entires
-            .last_mut()
-            .ok_or(ValidatorError::InvalidJSON($position))?;
-        *entries += 1;
+        if let Some(entries) = $self.entires.last_mut() {
+            *entries += 1;
 
-        if *entries > $self.max_array_entries {
-            return Err(ValidatorError::MaxArrayEntriesExceeded {
-                position: $position,
-                limit: $self.max_array_entries,
-            });
+            if *entries > $self.max_array_entries {
+                return Err(ValidatorError::MaxArrayEntriesExceeded {
+                    position: $position,
+                    limit: $self.max_array_entries,
+                });
+            }
+        } else {
+            return Err(ValidatorError::InvalidJSON($position));
         }
     };
 }
 
 macro_rules! try_finalize_array {
     ($self:ident, $position:ident) => {{
-        let entries = $self
-            .entires
-            .pop()
-            .ok_or(ValidatorError::InvalidJSON($position))?;
-        try_dec_depth!($self, $position);
-        entries
+        if let Some(entries) = $self.entires.pop() {
+            try_dec_depth!($self, $position);
+            entries
+        } else {
+            return Err(ValidatorError::InvalidJSON($position));
+        }
     }};
 }
 
@@ -105,16 +105,15 @@ macro_rules! try_add_object_key {
         }
 
         if disallow_duplicate_object_entry_name!($self) {
-            let keys = $self
-                .keys
-                .last_mut()
-                .ok_or(ValidatorError::InvalidJSON($position))?;
-
-            if !keys.insert($key.to_string()) {
-                return Err(ValidatorError::DuplicateObjectEntryName {
-                    position: $position,
-                    key: $key.to_string(),
-                });
+            if let Some(keys) = $self.keys.last_mut() {
+                if !keys.insert($key.to_string()) {
+                    return Err(ValidatorError::DuplicateObjectEntryName {
+                        position: $position,
+                        key: $key.to_string(),
+                    });
+                }
+            } else {
+                return Err(ValidatorError::InvalidJSON($position));
             }
         }
     };
@@ -122,17 +121,16 @@ macro_rules! try_add_object_key {
 
 macro_rules! try_add_object_value {
     ($self:ident, $position:ident) => {
-        let entries = $self
-            .entires
-            .last_mut()
-            .ok_or(ValidatorError::InvalidJSON($position))?;
-        *entries += 1;
-
-        if *entries > $self.max_object_entries {
-            return Err(ValidatorError::MaxObjectEntriesExceeded {
-                position: $position,
-                limit: $self.max_object_entries,
-            });
+        if let Some(entries) = $self.entires.last_mut() {
+            *entries += 1;
+            if *entries > $self.max_object_entries {
+                return Err(ValidatorError::MaxObjectEntriesExceeded {
+                    position: $position,
+                    limit: $self.max_object_entries,
+                });
+            }
+        } else {
+            return Err(ValidatorError::InvalidJSON($position));
         }
     };
 }
@@ -140,17 +138,17 @@ macro_rules! try_add_object_value {
 macro_rules! try_finalize_object {
     ($self:ident, $position:ident) => {{
         if disallow_duplicate_object_entry_name!($self) {
-            $self
-                .keys
-                .pop()
-                .ok_or(ValidatorError::InvalidJSON($position))?;
+            if $self.keys.pop().is_none() {
+                return Err(ValidatorError::InvalidJSON($position));
+            }
         }
-        let entries = $self
-            .entires
-            .pop()
-            .ok_or(ValidatorError::InvalidJSON($position))?;
-        try_dec_depth!($self, $position);
-        entries
+
+        if let Some(entries) = $self.entires.pop() {
+            try_dec_depth!($self, $position);
+            entries
+        } else {
+            return Err(ValidatorError::InvalidJSON($position));
+        }
     }};
 }
 
@@ -469,16 +467,16 @@ impl<R: Read> Validator<R> {
                 Token::RBrace => {
                     match state {
                         State::OptionalComma | State::OptionalObjectKey => {
-                            let state = self
-                                .states
-                                .pop()
-                                .ok_or(ValidatorError::InvalidJSON(dummy_position))?;
-                            if state != State::ProcessingObject {
-                                return Err(ValidatorError::InvalidJSON(dummy_position));
-                            }
-
-                            let entires = try_finalize_object!(self, dummy_position);
-                            if state == State::OptionalObjectKey && entires != 0 {
+                            if let Some(state) = self.states.pop() {
+                                if state != State::ProcessingObject {
+                                    return Err(ValidatorError::InvalidJSON(dummy_position));
+                                }
+    
+                                let entires = try_finalize_object!(self, dummy_position);
+                                if state == State::OptionalObjectKey && entires != 0 {
+                                    return Err(ValidatorError::InvalidJSON(dummy_position));
+                                }
+                            } else {
                                 return Err(ValidatorError::InvalidJSON(dummy_position));
                             }
                         }
@@ -508,16 +506,16 @@ impl<R: Read> Validator<R> {
                 Token::RBracket => {
                     match state {
                         State::OptionalComma | State::OptionalElement => {
-                            let state = self
-                                .states
-                                .pop()
-                                .ok_or(ValidatorError::InvalidJSON(dummy_position))?;
-                            if state != State::ProcessingArray {
-                                return Err(ValidatorError::InvalidJSON(dummy_position));
-                            }
-
-                            let entries = try_finalize_array!(self, dummy_position);
-                            if state == State::OptionalElement && entries != 0 {
+                            if let Some(state) = self.states.pop() {
+                                if state != State::ProcessingArray {
+                                    return Err(ValidatorError::InvalidJSON(dummy_position));
+                                }
+    
+                                let entries = try_finalize_array!(self, dummy_position);
+                                if state == State::OptionalElement && entries != 0 {
+                                    return Err(ValidatorError::InvalidJSON(dummy_position));
+                                }
+                            } else {
                                 return Err(ValidatorError::InvalidJSON(dummy_position));
                             }
                         }

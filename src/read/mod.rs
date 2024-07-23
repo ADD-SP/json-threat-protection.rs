@@ -11,25 +11,28 @@ use thiserror::Error;
 
 use utils::{decode_hex_sequence, IS_HEX, NEED_ESCAPE};
 
-macro_rules! parse_number {
-    ($self:ident) => {{
-        match $self.peek()? {
-            Some(b'-') => $self.discard(),
-            Some(b'0'..=b'9') => (),
-            Some(_) => return Err(ReadError::Bug{
-                msg: "macro_rules! parse_number: assume the first character is a number or a minus sign".to_string(),
-                position: $self.position(),
-            }),
-            None => return Err(ReadError::UnexpectedEndOfInput($self.position())),
-        }
 
-        let first = match $self.next()? {
-            Some(n @ b'0'..=b'9') => n,
-            _ => return Err(ReadError::Bug {
-                msg: "macro_rules! parse_number: assume the first character is a number".to_string(),
-                position: $self.position(),
-            }),
-        };
+// let mut first = first;
+//         if first == b'-' {
+//             if self.is_eof() {
+//                 return Err(ReadError::UnexpectedEndOfInput(self.position()));
+//             }
+//             first = match self.next_unchecked() {
+//                 b'0'..=b'9' => first,
+//                 _ => return Err(ReadError::NoNumberCharactersAfterMinusSign(self.position())),
+//             }
+//         }
+
+macro_rules! parse_number {
+    ($self:ident, $first:ident) => {{
+        let mut first = $first;
+        if first == b'-' {
+            first = match $self.next()? {
+                n @ Some(b'0'..=b'9') => n.unwrap(),
+                Some(_) => return Err(ReadError::NoNumberCharactersAfterMinusSign($self.position())),
+                None => return Err(ReadError::UnexpectedEndOfInput($self.position())),
+            }
+        }
 
         let second = $self.peek()?;
         if second.is_none() {
@@ -168,6 +171,10 @@ pub enum ReadError {
     #[error("non hex character in unicode escape sequence ({0})")]
     NonHexCharacterInUnicodeEscape(Position),
 
+    /// No number characters after the minus sign.
+    #[error("no number characters after the minus sign ({0})")]
+    NoNumberCharactersAfterMinusSign(Position),
+
     /// Leading zeros in number.
     #[error("leading zeros in number ({0})")]
     LeadingZerosInNumber(Position),
@@ -219,24 +226,22 @@ pub trait Read {
         self.next().unwrap();
     }
 
-    /// Get the next 4 characters and consume them.
-    fn next4(&mut self) -> Result<[u8; 4], ReadError> {
-        let mut buf = [0; 4];
-        for ch in &mut buf {
-            *ch = match self.next()? {
-                Some(ch) => ch,
+    fn next3(&mut self) -> Result<[u8; 3], ReadError> {
+        let mut buf = [0; 3];
+        for byte in &mut buf {
+            *byte = match self.next()? {
+                Some(byte) => byte,
                 None => return Err(ReadError::UnexpectedEndOfInput(self.position())),
             };
         }
         Ok(buf)
     }
 
-    /// Get the next 5 characters and consume them.
-    fn next5(&mut self) -> Result<[u8; 5], ReadError> {
-        let mut buf = [0; 5];
-        for ch in &mut buf {
-            *ch = match self.next()? {
-                Some(ch) => ch,
+    fn next4(&mut self) -> Result<[u8; 4], ReadError> {
+        let mut buf = [0; 4];
+        for byte in &mut buf {
+            *byte = match self.next()? {
+                Some(byte) => byte,
                 None => return Err(ReadError::UnexpectedEndOfInput(self.position())),
             };
         }
@@ -244,27 +249,23 @@ pub trait Read {
     }
 
     /// Skip whitespace characters (`' '`, `'\t'`, `'\n'`, `'\r'`).
-    fn skip_whitespace(&mut self) -> Result<(), ReadError> {
-        while let Some(b' ') | Some(b'\t') | Some(b'\n') | Some(b'\r') = self.peek()? {
-            self.next()?;
+    fn skip_whitespace(&mut self) -> Result<Option<u8>, ReadError> {
+        loop {
+            match self.next()? {
+                Some(b' ') | Some(b'\t') | Some(b'\n') | Some(b'\r') => continue,
+                ch => return Ok(ch),
+            }
         }
-        Ok(())
     }
 
     /// Parse a number and allow arbitrary precision.
-    fn next_number(&mut self) -> Result<(), ReadError> {
-        parse_number!(self)
+    fn next_number(&mut self, first: u8) -> Result<(), ReadError> {
+        parse_number!(self, first)
     }
 
     /// Parse a string, but not guaranteed to be correct UTF-8.
     fn next_likely_string(&mut self, buf: &mut Vec<u8>) -> Result<(), ReadError> {
-        if self.next()? != Some(b'"') {
-            return Err(ReadError::Bug {
-                msg: "Read.next_likely_string: assume the first character is a double quote"
-                    .to_string(),
-                position: self.position(),
-            });
-        }
+        buf.clear();
 
         while let Some(byte) = self.next()? {
             if !NEED_ESCAPE[byte as usize] {

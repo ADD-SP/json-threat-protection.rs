@@ -12,8 +12,8 @@ fn no_number_characters_after_fraction() {
             Error::LexerError(LexerError::ReadError(
                 ReadError::NoNumberCharactersAfterFraction(Position {
                     line: 1,
-                    column: 12,
-                    offset: 12
+                    column: 13,
+                    offset: 13
                 })
             ))
         ),
@@ -33,8 +33,8 @@ fn no_number_characters_after_exponent() {
             Error::LexerError(LexerError::ReadError(
                 ReadError::NoNumberCharactersAfterExponent(Position {
                     line: 1,
-                    column: 12,
-                    offset: 12
+                    column: 13,
+                    offset: 13
                 })
             ))
         ),
@@ -55,7 +55,7 @@ fn leading_zeros() {
                 Position {
                     line: 1,
                     column: 9,
-                    offset: 9
+                    offset: 9,
                 }
             )))
         ),
