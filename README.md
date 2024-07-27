@@ -21,7 +21,7 @@ This crate provides functionality to validate JSON payloads against a set of con
 * Whether to allow duplicate object entry names.
 
 The typical use case for this crate is to validate JSON payloads
-before the bussiness logic of your application that is deployed
+before the business logic of your application that is deployed
 in a separated place.
 
 ## Docs
