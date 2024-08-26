@@ -10,7 +10,7 @@ cargo-fuzz = true
 [dependencies]
 libfuzzer-sys = "0.4"
 regex = "1.10.5"
-serde = "1.0.204"
+serde = "1.0.209"
 serde_json = { version = "1.0.120", features = ["std", "arbitrary_precision"] }
 
 [dependencies.json-threat-protection]
