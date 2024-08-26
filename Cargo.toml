@@ -18,7 +18,7 @@ thiserror = "1.0.61"
 
 [dev-dependencies]
 serde = "1.0.204"
-serde_json = { version = "1.0.120", features = ["std", "arbitrary_precision"] }
+serde_json = { version = "1.0.127", features = ["std", "arbitrary_precision"] }
 criterion = "0.5"
 
 [[bench]]
