@@ -14,7 +14,7 @@ A crate to protect against malicious JSON payloads.
 """
 
 [dependencies]
-thiserror = "1.0.61"
+thiserror = "1.0.64"
 
 [dev-dependencies]
 serde = "1.0.204"
