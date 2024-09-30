@@ -9,7 +9,7 @@ cargo-fuzz = true
 
 [dependencies]
 libfuzzer-sys = "0.4"
-regex = "1.10.5"
+regex = "1.11.0"
 serde = "1.0.204"
 serde_json = { version = "1.0.120", features = ["std", "arbitrary_precision"] }
 
